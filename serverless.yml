@@ -1,0 +1,38 @@
+service: lunchbet-slack-bot
+
+package:
+  individually: true
+
+plugins:
+  - serverless-bundle
+  - serverless-dotenv-plugin
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+
+lambdaPolicyXRay:
+  Effect: Allow
+  Action:
+    - xray:PutTraceSegments
+    - xray:PutTelemetryRecords
+  Resource: '*'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  tracing:
+    apiGateway: true
+    lambda: true
+
+resources:
+  - ${file(resources/api-gateway-errors.yml)}
+
+functions:
+  message:
+    handler: message.main
+    events:
+      - http:
+          path: messages
+          method: post
