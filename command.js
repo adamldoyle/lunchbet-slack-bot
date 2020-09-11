@@ -1,16 +1,13 @@
-import handler from './libs/handler';
+import { parse } from 'querystring';
 import { verifyRequest } from './libs/slack';
+import handler from './libs/handler';
+import commandsHandler from './commands';
 
 export const main = handler(async (event) => {
-  const payload = JSON.parse(event.body);
-
   if (!verifyRequest(event)) {
     throw new Error('Invalid request');
   }
 
-  if (payload.type === 'url_verification') {
-    return { challenge: payload.challenge };
-  }
-
-  return true;
+  const payload = parse(event.body);
+  return commandsHandler(payload);
 });

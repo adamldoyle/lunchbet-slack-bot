@@ -17,30 +17,17 @@ describe('command handler', () => {
     expect(verifyRequest).toBeCalledWith(event);
   });
 
-  it('reflects challenge for url_verification', async () => {
+  it('other events throw error', async () => {
     const event = {
-      body: JSON.stringify({
-        type: 'url_verification',
-        challenge: 'testChallenge',
-      }),
+      body: 'command=/gibberish',
     };
     const context = { context: true };
     verifyRequest.mockReturnValue(true);
-    const response = await main(event, context);
-    expect(response.statusCode).toEqual(200);
-    expect(JSON.parse(response.body)).toEqual({ challenge: 'testChallenge' });
-  });
-
-  it('other events just return true', async () => {
-    const event = {
-      body: JSON.stringify({
-        type: 'gibberish',
-      }),
-    };
-    const context = { context: true };
-    verifyRequest.mockReturnValue(true);
-    const response = await main(event, context);
-    expect(response.statusCode).toEqual(200);
-    expect(JSON.parse(response.body)).toEqual(true);
+    try {
+      await main(event, context);
+      expect(true).toBeFalsy();
+    } catch (err) {
+      expect(err).toBeDefined();
+    }
   });
 });

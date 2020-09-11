@@ -4,6 +4,7 @@
   "description": "Slackbot for handling lunch bets",
   "scripts": {
     "test": "serverless-bundle test",
+    "test:watch": "serverless-bundle test --watch",
     "test:coverage": "serverless-bundle test --coverage",
     "prettier": "prettier .",
     "prettify": "prettier --write ."
