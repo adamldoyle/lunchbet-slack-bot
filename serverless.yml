@@ -30,9 +30,16 @@ resources:
   - ${file(resources/api-gateway-errors.yml)}
 
 functions:
-  message:
-    handler: message.main
+  event:
+    handler: event.main
     events:
       - http:
-          path: messages
+          path: events
+          method: post
+
+  command:
+    handler: command.main
+    events:
+      - http:
+          path: commands
           method: post

@@ -1,11 +1,9 @@
 import { verifyRequest } from './libs/slack';
-import eventHandler from './events';
-import { main } from './message';
+import { main } from './command';
 
 jest.mock('./libs/slack');
-jest.mock('./events');
 
-describe('message handler', () => {
+describe('command handler', () => {
   it('verifies requests', async () => {
     const event = { body: null };
     const context = { context: true };
@@ -31,20 +29,6 @@ describe('message handler', () => {
     const response = await main(event, context);
     expect(response.statusCode).toEqual(200);
     expect(JSON.parse(response.body)).toEqual({ challenge: 'testChallenge' });
-  });
-
-  it('hands off to event handler for event_callback', async () => {
-    const event = {
-      body: JSON.stringify({
-        type: 'event_callback',
-      }),
-    };
-    const context = { context: true };
-    verifyRequest.mockReturnValue(true);
-    eventHandler.mockResolvedValue({ event: true });
-    const response = await main(event, context);
-    expect(response.statusCode).toEqual(200);
-    expect(JSON.parse(response.body)).toEqual({ event: true });
   });
 
   it('other events just return true', async () => {
