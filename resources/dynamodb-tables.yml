@@ -1,0 +1,12 @@
+Resources:
+  BetsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ${self:custom.tableName}
+      AttributeDefinitions:
+        - AttributeName: betId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: betId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
