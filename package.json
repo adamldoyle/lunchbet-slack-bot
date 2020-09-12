@@ -6,11 +6,13 @@
     "test": "serverless-bundle test",
     "test:watch": "serverless-bundle test --watch",
     "test:coverage": "serverless-bundle test --coverage",
+    "package": "serverless package",
     "prettier": "prettier .",
     "prettify": "prettier --write ."
   },
   "pre-commit": [
-    "test"
+    "test",
+    "package"
   ],
   "author": "Adam Doyle <adamldoyle@gmail.com>",
   "license": "MIT",
@@ -18,6 +20,7 @@
     "aws-sdk": "^2.747.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.1.1",
+    "serverless": "^2.0.0",
     "serverless-bundle": "^3.0.0",
     "serverless-dotenv-plugin": "^3.0.0"
   },

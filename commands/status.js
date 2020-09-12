@@ -2,6 +2,8 @@ export default {
   PROPOSED: 'proposed',
   ACCEPTED: 'accepted',
   DECLINED: 'declined',
-  WON: 'won',
-  LOST: 'lost',
+  CANCELED: 'canceled',
+  USER_WON: 'user_won',
+  TARGET_WON: 'target_won',
+  TIE: 'tie',
 };
