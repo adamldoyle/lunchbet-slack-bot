@@ -14,7 +14,7 @@ export default async function (payload) {
     };
   }
 
-  const { userId, userName, lunchCount, description } = matches.groups;
+  const { userId, lunchCount, description } = matches.groups;
   const params = {
     TableName: process.env.tableName,
     Item: {
