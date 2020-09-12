@@ -182,7 +182,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/lunchbet-slack-bot/dev/1599950797665-2020-09-12T22:46:37.665Z/event.zip"
+          "S3Key": "serverless/lunchbet-slack-bot/dev/1599950824586-2020-09-12T22:47:04.586Z/event.zip"
         },
         "FunctionName": "lunchbet-slack-bot-dev-event",
         "Handler": "event.main",
@@ -225,7 +225,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/lunchbet-slack-bot/dev/1599950797665-2020-09-12T22:46:37.665Z/command.zip"
+          "S3Key": "serverless/lunchbet-slack-bot/dev/1599950824586-2020-09-12T22:47:04.586Z/command.zip"
         },
         "FunctionName": "lunchbet-slack-bot-dev-command",
         "Handler": "command.main",
@@ -389,7 +389,7 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1599950791907": {
+    "ApiGatewayDeployment1599950818749": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {

@@ -5,7 +5,7 @@ export default async function (payload) {
     TableName: process.env.tableName,
   };
 
-  const result = await dynamodb.query(params);
+  const result = await dynamodb.scan(params);
   const lunchBetOutput =
     result.Items.length === 0
       ? 'No bets'
