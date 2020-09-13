@@ -1,5 +1,10 @@
 import dynamodb from '../libs/dynamodb';
 
+const capitalize = (s) => {
+  if (typeof s !== 'string') return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
+
 export default async function (payload) {
   const params = {
     TableName: process.env.tableName,
@@ -18,9 +23,10 @@ export default async function (payload) {
         text: {
           type: 'mrkdwn',
           text:
-            `*Bet (${bet.betId}) proposed at ${bet.createdAt} with status ${bet.status}*\n` +
-            `<@${bet.creatorId}> (${bet.creatorLunchCount} lunches) - ${bet.creatorWinCondition} vs\n` +
-            `<@${bet.targetUserId}> (${bet.targetLunchCount} lunches) - ${bet.targetWinCondition}`,
+            `*${capitalize(bet.status)}:\n` +
+            `<@${bet.creatorId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
+            `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
+            `Proposed on *<!date^${bet.createdAt}^{date} at {time}|${bet.createdAt}>*`,
         },
       });
       return acc;
