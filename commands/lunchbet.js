@@ -1,5 +1,6 @@
 import * as uuid from 'uuid';
 import types from './types';
+import interactiveTypes from '../interactive/types';
 import status from './status';
 import dynamodb from '../libs/dynamodb';
 import slackClient from '../libs/slack';
@@ -71,12 +72,12 @@ export default async function (payload) {
       {
         text: 'Choose an action',
         fallback: 'You are unable to make a choice',
-        callback_id: 'bet_proposal_response',
+        callback_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${params.Item.betId}`,
         color: '#3AA3E3',
         attachment_type: 'default',
         actions: [
           {
-            name: 'proposal_response',
+            name: interactiveTypes.PROPOSAL_RESPONSE,
             text: 'Accept',
             type: 'button',
             value: 'accept',
@@ -88,7 +89,7 @@ export default async function (payload) {
             },
           },
           {
-            name: 'proposal_response',
+            name: interactiveTypes.PROPOSAL_RESPONSE,
             text: 'Decline',
             style: 'danger',
             type: 'button',
