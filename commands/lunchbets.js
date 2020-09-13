@@ -26,7 +26,7 @@ export default async function (payload) {
             `*${capitalize(bet.status)}*:\n` +
             `<@${bet.creatorId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
             `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
-            `Proposed on* <!date^${bet.createdAt}^{date} at {time}|${bet.createdAt}> *`,
+            `ID - ${bet.betId}`,
         },
       });
       return acc;
