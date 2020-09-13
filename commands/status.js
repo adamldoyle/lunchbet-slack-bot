@@ -3,7 +3,7 @@ export default {
   ACCEPTED: 'accepted',
   DECLINED: 'declined',
   CANCELED: 'canceled',
-  USER_WON: 'user_won',
+  CREATOR_WON: 'creator_won',
   TARGET_WON: 'target_won',
   TIE: 'tie',
 };
