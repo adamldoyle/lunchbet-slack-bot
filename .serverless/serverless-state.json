@@ -207,7 +207,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lunchbet-slack-bot/dev/1599957230243-2020-09-13T00:33:50.243Z/event.zip"
+                "S3Key": "serverless/lunchbet-slack-bot/dev/1599957898493-2020-09-13T00:44:58.493Z/event.zip"
               },
               "FunctionName": "lunchbet-slack-bot-dev-event",
               "Handler": "event.main",
@@ -250,7 +250,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/lunchbet-slack-bot/dev/1599957230243-2020-09-13T00:33:50.243Z/command.zip"
+                "S3Key": "serverless/lunchbet-slack-bot/dev/1599957898493-2020-09-13T00:44:58.493Z/command.zip"
               },
               "FunctionName": "lunchbet-slack-bot-dev-command",
               "Handler": "command.main",
@@ -276,14 +276,14 @@
               "CommandLogGroup"
             ]
           },
-          "CommandLambdaVersionJxTbD0L4PEPafXvd2DrA5QNWTSe8im2z9CRtC16WwE": {
+          "CommandLambdaVersionkmKARWLDKW7lBKsSwFNwdjPUTdgXycbhYz0fBrTDeY": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CommandLambdaFunction"
               },
-              "CodeSha256": "CY97qjlT0hH7HCU3dTE7IpBhXtyMundhx4UQOc4FM20="
+              "CodeSha256": "qH+mPefrKAoYaoYgqFnBLkvpes7/wcgzDiBdslKgfuM="
             }
           },
           "ApiGatewayRestApi": {
@@ -414,7 +414,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1599957223378": {
+          "ApiGatewayDeployment1599957891623": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -562,7 +562,7 @@
           "CommandLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CommandLambdaVersionJxTbD0L4PEPafXvd2DrA5QNWTSe8im2z9CRtC16WwE"
+              "Ref": "CommandLambdaVersionkmKARWLDKW7lBKsSwFNwdjPUTdgXycbhYz0fBrTDeY"
             }
           },
           "ServiceEndpoint": {
@@ -721,7 +721,7 @@
         "timeout": 6,
         "runtime": "nodejs12.x",
         "vpc": {},
-        "versionLogicalId": "CommandLambdaVersionJxTbD0L4PEPafXvd2DrA5QNWTSe8im2z9CRtC16WwE"
+        "versionLogicalId": "CommandLambdaVersionkmKARWLDKW7lBKsSwFNwdjPUTdgXycbhYz0fBrTDeY"
       }
     },
     "resources": {
@@ -781,7 +781,7 @@
       "service": "lunchbet-slack-bot",
       "package": {
         "individually": true,
-        "artifactDirectoryName": "serverless/lunchbet-slack-bot/dev/1599957230243-2020-09-13T00:33:50.243Z"
+        "artifactDirectoryName": "serverless/lunchbet-slack-bot/dev/1599957898493-2020-09-13T00:44:58.493Z"
       },
       "plugins": {
         "$ref": "$[\"service\"][\"plugins\"]"
@@ -895,7 +895,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/lunchbet-slack-bot/dev/1599957230243-2020-09-13T00:33:50.243Z",
+    "artifactDirectoryName": "serverless/lunchbet-slack-bot/dev/1599957898493-2020-09-13T00:44:58.493Z",
     "artifact": ""
   }
 }
