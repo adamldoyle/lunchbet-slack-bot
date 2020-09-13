@@ -15,7 +15,7 @@ export default async function (payload) {
     };
   }
 
-  const {
+  let {
     creatorLunchCount,
     creatorWinCondition,
     targetUserId,
