@@ -18,8 +18,8 @@ export default async function (payload) {
     },
     ReturnValues: 'ALL_NEW',
   };
-  const response = await dynamodb.update(params);
-  debug('Response', response);
+  const updateResponse = await dynamodb.update(params);
+  debug('Response', updateResponse);
   throw new Error('whatever');
 
   // return {
