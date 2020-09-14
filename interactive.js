@@ -9,7 +9,7 @@ export const main = handler(async (event) => {
     throw new Error('Invalid request');
   }
 
-  const payload = parse(event.body).payload;
+  const payload = JSON.parse(parse(event.body).payload);
   debug('payload', payload);
   debug('typeof', typeof payload);
   debug('keys', Object.keys(payload));
