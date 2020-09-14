@@ -16,7 +16,8 @@ export default async function (payload) {
       ':betStatus': newStatus,
     },
   };
-  await dynamodb.update(params);
+  const response = await dynamodb.update(params);
+  console.log(response);
 
   return {
     ...payload.original_message,
@@ -26,7 +27,7 @@ export default async function (payload) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `You ${newStatus}`,
+          text: `You *${newStatus}*`,
         },
       },
     ],
