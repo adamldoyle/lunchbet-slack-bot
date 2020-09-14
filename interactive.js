@@ -10,7 +10,10 @@ export const main = handler(async (event) => {
   }
 
   const payload = parse(event.body);
+  debug('type', typeof payload);
+  debug('json', JSON.stringify(payload));
   debug('parsed body', payload);
+  debug('who knows', JSON.parse(JSON.stringify(payload)).type);
   debug('dot type', payload.type);
   debug('array type', payload['type']);
   debug('dot callback_id', payload.callback_id);
