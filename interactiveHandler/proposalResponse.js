@@ -1,7 +1,6 @@
 import types from './types';
 import status from '../commands/status';
 import dynamodb from '../libs/dynamodb';
-import debug from '../libs/debug';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
@@ -18,24 +17,6 @@ export default async function (payload) {
       ':betStatus': newStatus,
       ':requiredStatus': status.PROPOSED,
     },
-    ReturnValues: 'ALL_NEW',
   };
-  const updateResponse = await dynamodb.update(params);
-  debug('Response', updateResponse);
-  throw new Error('whatever');
-
-  // return {
-  //   ...payload.original_message,
-  //   blocks: [
-  //     ...payload.original_message.blocks,
-  //     {
-  //       type: 'section',
-  //       text: {
-  //         type: 'mrkdwn',
-  //         text: `You *${newStatus}*`,
-  //       },
-  //     },
-  //   ],
-  //   attachments: null,
-  // };
+  await dynamodb.update(params);
 }
