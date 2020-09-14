@@ -61,3 +61,10 @@ functions:
       - http:
           path: commands
           method: post
+
+  interactive:
+    handler: interactive.main
+    events:
+      - http:
+          path: interactive
+          method: post

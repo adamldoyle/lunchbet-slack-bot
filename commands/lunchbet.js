@@ -1,6 +1,6 @@
 import * as uuid from 'uuid';
 import types from './types';
-import interactiveTypes from '../interactive/types';
+import interactiveTypes from '../interactiveHandler/types';
 import status from './status';
 import dynamodb from '../libs/dynamodb';
 import slackClient from '../libs/slack';
