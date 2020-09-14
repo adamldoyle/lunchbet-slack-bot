@@ -13,8 +13,10 @@ export default async function (payload) {
       betId,
     },
     UpdateExpression: 'SET betStatus = :betStatus',
+    ConditionExpression: 'betStatus = :requiredStatus',
     ExpressionAttributeValues: {
       ':betStatus': newStatus,
+      ':requiredStatus': status.PROPOSED,
     },
     ReturnValues: 'ALL_NEW',
   };
