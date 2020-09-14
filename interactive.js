@@ -11,6 +11,8 @@ export const main = handler(async (event) => {
 
   const payload = parse(event.body);
   debug('type', typeof payload);
+  debug('payload', payload.payload);
+  debug('keys', Object.keys(payload));
   debug('json', JSON.stringify(payload));
   debug('parsed body', payload);
   debug('who knows', JSON.parse(JSON.stringify(payload)).type);

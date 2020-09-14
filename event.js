@@ -16,6 +16,7 @@ export const main = handler(async (event) => {
   if (payload.type === 'event_callback') {
     return eventHandler(payload);
   }
+  // TODO: Need to move interactive out because it's a form encoded body, not JSON
   if (payload.type === 'interactive_message') {
     return interactiveHandler(payload);
   }
