@@ -11,11 +11,13 @@ export default async function (payload) {
     Key: {
       betId,
     },
+    ConditionExpression:
+      'targetUserId = :targetUserId AND betStatus = :requiredStatus',
     UpdateExpression: 'SET betStatus = :betStatus',
-    ConditionExpression: 'betStatus = :requiredStatus',
     ExpressionAttributeValues: {
-      ':betStatus': newStatus,
+      ':targetUserId': payload.user.id,
       ':requiredStatus': status.PROPOSED,
+      ':betStatus': newStatus,
     },
   };
   await dynamodb.update(params);
