@@ -19,4 +19,19 @@ export default async function (payload) {
     },
   };
   await dynamodb.update(params);
+
+  return {
+    ...payload.original_message,
+    blocks: [
+      ...payload.original_message.blocks,
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `You *${newStatus}*`,
+        },
+      },
+    ],
+    attachments: null,
+  };
 }
