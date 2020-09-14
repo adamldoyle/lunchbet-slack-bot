@@ -23,7 +23,7 @@ export default async function (payload) {
         text: {
           type: 'mrkdwn',
           text:
-            `*${capitalize(bet.status)}*:\n` +
+            `*${capitalize(bet.betStatus)}*:\n` +
             `<@${bet.creatorId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
             `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
             `ID - ${bet.betId}`,

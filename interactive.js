@@ -10,10 +10,5 @@ export const main = handler(async (event) => {
   }
 
   const payload = JSON.parse(parse(event.body).payload);
-  debug('payload', payload);
-  debug('typeof', typeof payload);
-  debug('keys', Object.keys(payload));
-  debug('callback_id', payload.callback_id, payload['callback_id']);
-  debug('type', payload.type, payload['type']);
   return interactiveHandler(payload);
 });

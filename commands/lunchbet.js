@@ -35,7 +35,7 @@ export default async function (payload) {
       targetUserId,
       targetLunchCount,
       targetWinCondition,
-      status: status.PROPOSED,
+      betStatus: status.PROPOSED,
       createdAt: Date.now(),
     },
   };

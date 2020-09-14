@@ -10,9 +10,9 @@ export default async function (payload) {
     Key: {
       betId,
     },
-    UpdateExpression: 'SET status = :status',
+    UpdateExpression: 'SET betStatus = :betStatus',
     ExpressionAttributeValues: {
-      ':status': response === 'accept' ? status.ACCEPTED : status.DECLINED,
+      ':betStatus': response === 'accept' ? status.ACCEPTED : status.DECLINED,
     },
   };
   await dynamodb.update(params);
