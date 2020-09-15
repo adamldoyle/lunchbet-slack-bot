@@ -49,7 +49,7 @@ export default async function (payload) {
     Key: {
       betId: params.Item.betId,
     },
-    UpdateExpression: 'SET initialTs = :initialTs AND proposalTs = :proposalTs',
+    UpdateExpression: 'SET initialTs = :initialTs, proposalTs = :proposalTs',
     ExpressionAttributeValues: {
       ':initialTs': initialTs,
       ':proposalTs': proposalTs,
