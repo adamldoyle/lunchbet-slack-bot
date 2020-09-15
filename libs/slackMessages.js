@@ -1,5 +1,6 @@
 import slackClient from './slack';
 import interactiveTypes from '../interactiveHandler/types';
+import status from '../commands/status';
 
 export async function sendBetInitial(bet) {
   const response = await slackClient.chat.postMessage({
@@ -42,7 +43,7 @@ export async function sendBetInitial(bet) {
             text: 'Cancel',
             style: 'danger',
             type: 'button',
-            value: 'cancel',
+            value: status.CANCELED,
             confirm: {
               title: 'Are you sure?',
               text: "You won't be able to undo the cancellation.",
@@ -98,7 +99,7 @@ export async function sendBetProposal(bet) {
             name: interactiveTypes.PROPOSAL_RESPONSE,
             text: 'Accept',
             type: 'button',
-            value: 'accept',
+            value: status.ACCEPTED,
             confirm: {
               title: 'Are you sure?',
               text: "You won't be able to change this decision.",
@@ -111,7 +112,7 @@ export async function sendBetProposal(bet) {
             text: 'Decline',
             style: 'danger',
             type: 'button',
-            value: 'decline',
+            value: status.DECLINED,
             confirm: {
               title: 'Are you sure?',
               text: "You won't be able to change this decision.",
