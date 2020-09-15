@@ -8,19 +8,13 @@ Resources:
           AttributeType: S
         - AttributeName: betStatus
           AttributeType: S
-        - AttributeName: creatorUserId
-          AttributeType: S
-        - AttributeName: targetUserId
-          AttributeType: S
       KeySchema:
         - AttributeName: betId
           KeyType: HASH
       GlobalSecondaryIndexes:
-        - IndexName: UserIdsIndex
+        - IndexName: BetStatusIndex
           KeySchema:
-            - AttributeName: creatorUserId
-              KeyType: HASH
-            - AttributeName: targetUserId
+            - AttributeName: betStatus
               KeyType: HASH
           Projection:
             ProjectionType: 'ALL'

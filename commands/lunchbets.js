@@ -46,10 +46,11 @@ export default async function (payload) {
 
   const params = {
     TableName: process.env.tableName,
-    IndexName: queryMap[':userId'] ? 'UserIdsIndex' : 'BetStatusIndex',
-    KeyConditionExpression: queryMap[':userId']
+    IndexName: 'BetStatusIndex',
+    KeyConditionExpression: 'betStatus = :betStatus',
+    FilterExpression: queryMap[':userId']
       ? 'creatorUserId = :userId OR targetUserID = :userId'
-      : 'betStatus = :betStatus',
+      : '',
     ExpressionAttributeValues: queryMap,
   };
 
