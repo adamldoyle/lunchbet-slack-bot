@@ -1,6 +1,7 @@
 import types from './types';
 import status from '../commands/status';
 import dynamodb from '../libs/dynamodb';
+import debug from '../libs/debug';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
@@ -25,23 +26,24 @@ export default async function (payload) {
       ':requiredStatus': status.PROPOSED,
       ':betStatus': response,
     },
+    ReturnValues: 'ALL_NEW',
   };
-  await dynamodb.update(params);
+  const updatedItem = await dynamodb.update(params);
+  debug('updatedItem', updatedItem);
+  throw new Error('whatever');
 
-  // TODO: Should catch condition exceptions and modify the response below to remove it
-
-  return {
-    ...payload.original_message,
-    blocks: [
-      ...payload.original_message.blocks,
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `You *${response}*`,
-        },
-      },
-    ],
-    attachments: null,
-  };
+  // return {
+  //   ...payload.original_message,
+  //   blocks: [
+  //     ...payload.original_message.blocks,
+  //     {
+  //       type: 'section',
+  //       text: {
+  //         type: 'mrkdwn',
+  //         text: `Bet *${response}*`,
+  //       },
+  //     },
+  //   ],
+  //   attachments: null,
+  // };
 }
