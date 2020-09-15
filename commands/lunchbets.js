@@ -52,7 +52,7 @@ export default async function (payload) {
     KeyConditionExpression: 'betStatus = :betStatus',
     FilterExpression: queryMap[':userId']
       ? 'creatorUserId = :userId OR targetUserID = :userId'
-      : '',
+      : null,
     ExpressionAttributeValues: queryMap,
   };
 
