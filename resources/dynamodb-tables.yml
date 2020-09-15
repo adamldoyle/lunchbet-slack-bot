@@ -6,7 +6,28 @@ Resources:
       AttributeDefinitions:
         - AttributeName: betId
           AttributeType: S
+        - AttributeName: betStatus
+          AttributeType: S
+        - AttributeName: creatorUserId
+          AttributeType: S
+        - AttributeName: targetUserId
+          AttributeType: S
       KeySchema:
         - AttributeName: betId
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: BetStatusIndex
+          KeySchema:
+            - AttributeName: betStatus
+              KeyType: HASH
+          Projection:
+            ProjectionType: 'ALL'
+        - IndexName: UserIdsIndex
+          KeySchema:
+            - AttributeName: creatorUserId
+              KeyType: HASH
+            - AttributeName: targetUserId
+              KeyType: HASH
+          Projection:
+            ProjectionType: 'ALL'
       BillingMode: PAY_PER_REQUEST
