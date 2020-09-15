@@ -1,9 +1,8 @@
 import * as uuid from 'uuid';
 import types from './types';
-import interactiveTypes from '../interactiveHandler/types';
 import status from './status';
 import dynamodb from '../libs/dynamodb';
-import slackClient from '../libs/slack';
+import { sendBetInitial, sendBetProposal } from '../libs/slackMessages';
 
 const re = /^(?<creatorLunchCount>[0-9]+)\s*(?<creatorWinCondition>.*)\s*vs\s*<@(?<targetUserId>.*)\|(?<targetName>.*)>\s*(?<targetLunchCount>[0-9]+)\s*(?<targetWinCondition>.*)$/;
 
@@ -25,11 +24,12 @@ export default async function (payload) {
   } = matches.groups;
   creatorWinCondition = creatorWinCondition.trim();
   targetWinCondition = targetWinCondition.trim();
+
   const params = {
     TableName: process.env.tableName,
     Item: {
       betId: uuid.v1(),
-      creatorId: payload.user_id,
+      creatorUserId: payload.user_id,
       creatorLunchCount,
       creatorWinCondition,
       targetUserId,
@@ -41,70 +41,21 @@ export default async function (payload) {
   };
   await dynamodb.put(params);
 
-  await slackClient.chat.postMessage({
-    channel: `@${targetUserId}`,
-    blocks: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `<@${params.Item.creatorId}> has proposed a lunch bet to you!`,
-        },
-      },
-      {
-        type: 'divider',
-      },
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text:
-            `<@${params.Item.creatorId}> (*${creatorLunchCount}* lunches) - ${creatorWinCondition}\n` +
-            `<@${targetUserId}> (*${targetLunchCount}* lunches) - ${targetWinCondition}\n` +
-            `ID - ${params.Item.betId}`,
-        },
-      },
-      {
-        type: 'divider',
-      },
-    ],
-    attachments: [
-      {
-        text: 'Choose an action',
-        fallback: 'You are unable to make a choice',
-        callback_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${params.Item.betId}`,
-        color: '#3AA3E3',
-        attachment_type: 'default',
-        actions: [
-          {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Accept',
-            type: 'button',
-            value: 'accept',
-            confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to change this decision.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
-            },
-          },
-          {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Decline',
-            style: 'danger',
-            type: 'button',
-            value: 'decline',
-            confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to change this decision.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
-            },
-          },
-        ],
-      },
-    ],
-  });
+  const initialTs = await sendBetInitial(params.Item);
+  const proposalTs = await sendBetProposal(params.Item);
+
+  const updateParams = {
+    TableName: process.env.tableName,
+    Key: {
+      betId: params.Item.betId,
+    },
+    UpdateExpression: 'SET initialTs = :initialTs AND proposalTs = :proposalTs',
+    ExpressionAttributeValues: {
+      ':initialTs': initialTs,
+      ':proposalTs': proposalTs,
+    },
+  };
+  await dynamodb.update(updateParams);
 
   return {
     response_type: 'in_channel',

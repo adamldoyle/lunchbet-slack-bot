@@ -5,22 +5,30 @@ import dynamodb from '../libs/dynamodb';
 export default async function (payload) {
   const response = payload.actions[0].value;
   const betId = payload.callback_id.split(`${types.PROPOSAL_RESPONSE}_`)[1];
-  const newStatus = response === 'accept' ? status.ACCEPTED : status.DECLINED;
+  let userField;
+  if (response === status.ACCEPTED || response === status.DECLINED) {
+    userField = 'targetUserId';
+  } else if (response === status.CANCELED) {
+    userField = 'creatorUserId';
+  } else {
+    throw new Error('Invalid status');
+  }
   const params = {
     TableName: process.env.tableName,
     Key: {
       betId,
     },
-    ConditionExpression:
-      'targetUserId = :targetUserId AND betStatus = :requiredStatus',
+    ConditionExpression: `${userField} = :userId AND betStatus = :requiredStatus`,
     UpdateExpression: 'SET betStatus = :betStatus',
     ExpressionAttributeValues: {
-      ':targetUserId': payload.user.id,
+      ':userId': payload.user.id,
       ':requiredStatus': status.PROPOSED,
-      ':betStatus': newStatus,
+      ':betStatus': response,
     },
   };
   await dynamodb.update(params);
+
+  // TODO: Should catch condition exceptions and modify the response below to remove it
 
   return {
     ...payload.original_message,
@@ -30,7 +38,7 @@ export default async function (payload) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `You *${newStatus}*`,
+          text: `You *${response}*`,
         },
       },
     ],
