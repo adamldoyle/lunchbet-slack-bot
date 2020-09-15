@@ -8,15 +8,12 @@ export default async function (payload) {
   const betId = payload.callback_id.split(`${types.PROPOSAL_RESPONSE}_`)[1];
 
   let userField;
-  let otherUserField;
   let otherTsField;
   if (response === status.ACCEPTED || response === status.DECLINED) {
     userField = 'targetUserId';
-    otherUserField = 'creatorUserId';
     otherTsField = 'initialTs';
   } else if (response === status.CANCELED) {
     userField = 'creatorUserId';
-    otherUserField = 'targetUserId';
     otherTsField = 'proposalTs';
   } else {
     throw new Error('Invalid status');
@@ -39,7 +36,7 @@ export default async function (payload) {
   const updatedItem = await dynamodb.update(params);
 
   await slackClient.chat.update({
-    channel: updatedItem.Attributes[otherUserField],
+    channel: payload.channel.id,
     ts: updatedItem.Attributes[otherTsField],
     attachments: [
       {
