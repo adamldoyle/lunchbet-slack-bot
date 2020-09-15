@@ -1,5 +1,6 @@
 import dynamodb from '../libs/dynamodb';
 import types from './types';
+import debug from '../libs/debug';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
@@ -10,7 +11,7 @@ const userRegex = /<@(?<userId>.*)\|(?<userName>.*)>/;
 
 function usageExample(prefixMessage) {
   const allStatuses = Object.values(types).join('|');
-  return `${prefixMessage} Usage: ${types.LUNCHBETS} [status=${allStatuses}] [user=@user]`;
+  return `${prefixMessage} Usage: ${types.LUNCHBETS} status=${allStatuses} [user=@user]`;
 }
 
 export default async function (payload) {
@@ -44,6 +45,7 @@ export default async function (payload) {
     };
   }
 
+  debug('queryMap', queryMap);
   const params = {
     TableName: process.env.tableName,
     IndexName: 'BetStatusIndex',
