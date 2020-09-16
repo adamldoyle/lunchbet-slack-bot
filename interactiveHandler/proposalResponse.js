@@ -3,23 +3,19 @@ import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient, { getUserMap } from '../libs/slack';
 import { sendBetAccepted } from '../libs/slackMessages';
-import debug from '../libs/debug';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
   const betId = payload.callback_id.split(`${types.PROPOSAL_RESPONSE}_`)[1];
 
-  let userField;
-  let otherUserField;
-  let otherTsField;
+  let userPrefix;
+  let otherPrefix;
   if (response === status.ACCEPTED || response === status.DECLINED) {
-    userField = 'targetUserId';
-    otherUserField = 'creatorUserId';
-    otherTsField = 'initialTs';
+    userPrefix = 'target';
+    otherPrefix = 'creator';
   } else if (response === status.CANCELED) {
-    userField = 'creatorUserId';
-    otherUserField = 'targetUserId';
-    otherTsField = 'proposalTs';
+    userPrefix = 'creator';
+    otherPrefix = 'target';
   } else {
     throw new Error('Invalid status');
   }
@@ -29,7 +25,7 @@ export default async function (payload) {
     Key: {
       betId,
     },
-    ConditionExpression: `${userField} = :userId AND betStatus = :requiredStatus`,
+    ConditionExpression: `${userPrefix}UserId = :userId AND betStatus = :requiredStatus`,
     UpdateExpression: 'SET betStatus = :betStatus',
     ExpressionAttributeValues: {
       ':userId': payload.user.id,
@@ -54,12 +50,9 @@ export default async function (payload) {
     },
   ];
 
-  debug('payload channel id', payload.channel.id);
-  debug('other user channel', `@${updatedItem.Attributes[otherUserField]}`);
-
   await slackClient.chat.update({
-    channel: `@${updatedItem.Attributes[otherUserField]}`,
-    ts: updatedItem.Attributes[otherTsField],
+    channel: updatedItem.Attributes[otherPrefix + 'Channel'],
+    ts: updatedItem.Attributes[otherPrefix + 'InitialTs'],
     attachments: updatedAttachments,
   });
 
@@ -71,13 +64,13 @@ export default async function (payload) {
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
-      updatedItem.Attributes.creatorUserId,
+      updatedItem.Attributes.creatorChannel,
     );
     const targetAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
-      updatedItem.Attributes.targetUserId,
+      updatedItem.Attributes.targetChannel,
     );
 
     const updateParams = {

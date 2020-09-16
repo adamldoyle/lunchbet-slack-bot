@@ -15,6 +15,7 @@ describe('slackMessages', () => {
     jest.resetAllMocks();
     slackClient.chat.postMessage.mockResolvedValue({
       ts: 'testTs',
+      channel: 'testChannel',
     });
   });
 
@@ -22,7 +23,7 @@ describe('slackMessages', () => {
     it('returns timestamp from slack message', async () => {
       const bet = {};
       const response = await sendBetInitial(bet);
-      expect(response).toEqual('testTs');
+      expect(response).toEqual({ ts: 'testTs', channel: 'testChannel' });
     });
 
     it('sends to creator', async () => {
@@ -71,7 +72,7 @@ describe('slackMessages', () => {
     it('returns timestamp from slack message', async () => {
       const bet = {};
       const response = await sendBetProposal(bet);
-      expect(response).toEqual('testTs');
+      expect(response).toEqual({ ts: 'testTs', channel: 'testChannel' });
     });
 
     it('sends to target', async () => {
@@ -124,13 +125,13 @@ describe('slackMessages', () => {
       expect(response).toEqual('testTs');
     });
 
-    it('sends to user', async () => {
+    it('sends to cjamme;', async () => {
       const bet = {
         targetUserId: 'testUserId',
       };
-      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      await sendBetAccepted(bet, 'user1', 'user2', 'testChannel');
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(payload.channel).toEqual('@userId');
+      expect(payload.channel).toEqual('testChannel');
     });
 
     it('includes bet details', async () => {
