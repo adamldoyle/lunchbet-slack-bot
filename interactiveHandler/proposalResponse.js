@@ -1,5 +1,5 @@
-import types from './types';
-import status from '../commands/status';
+import types from '../types/interactiveTypes';
+import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient from '../libs/slack';
 

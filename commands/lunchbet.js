@@ -1,6 +1,6 @@
 import * as uuid from 'uuid';
-import types from './types';
-import status from './status';
+import types from '../types/commandTypes';
+import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import { sendBetInitial, sendBetProposal } from '../libs/slackMessages';
 
@@ -24,6 +24,8 @@ export default async function (payload) {
   } = matches.groups;
   creatorWinCondition = creatorWinCondition.trim();
   targetWinCondition = targetWinCondition.trim();
+  creatorLunchCount = parseInt(creatorLunchCount);
+  targetLunchCount = parseInt(targetLunchCount);
 
   const params = {
     TableName: process.env.tableName,

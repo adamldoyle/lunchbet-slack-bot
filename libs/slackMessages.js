@@ -1,6 +1,11 @@
 import slackClient from './slack';
-import interactiveTypes from '../interactiveHandler/types';
-import status from '../commands/status';
+import interactiveTypes from '../types/interactiveTypes';
+import status from '../types/commandStatuses';
+
+const capitalize = (s) => {
+  if (typeof s !== 'string') return '';
+  return s.charAt(0).toUpperCase() + s.slice(1);
+};
 
 export async function sendBetInitial(bet) {
   const response = await slackClient.chat.postMessage({
@@ -126,4 +131,37 @@ export async function sendBetProposal(bet) {
   });
 
   return response.ts;
+}
+
+export function buildBetsList(bets) {
+  return bets
+    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    .reduce(
+      (acc, bet) => {
+        acc.push({
+          type: 'divider',
+        });
+        acc.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text:
+              `*${capitalize(bet.betStatus)}*:\n` +
+              `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
+              `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
+              `ID - ${bet.betId}`,
+          },
+        });
+        return acc;
+      },
+      [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '*Lunch bets:*',
+          },
+        },
+      ],
+    );
 }

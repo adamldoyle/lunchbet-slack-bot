@@ -1,4 +1,4 @@
-import types from './types';
+import types from '../types/eventTypes';
 import { handleSource, handleHelp } from './help';
 
 export default async function handleEvent(payload) {

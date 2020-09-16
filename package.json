@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Slackbot for handling lunch bets",
   "scripts": {
-    "test": "serverless-bundle test",
-    "test:watch": "serverless-bundle test --watch",
-    "test:coverage": "serverless-bundle test --coverage",
+    "test": "serverless-bundle test --runInBand",
+    "test:watch": "serverless-bundle test --watch --runInBand",
+    "test:coverage": "serverless-bundle test --coverage --runInBand",
     "package": "serverless package",
     "prettier": "prettier .",
     "prettify": "prettier --write ."

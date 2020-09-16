@@ -1,10 +1,6 @@
 import dynamodb from '../libs/dynamodb';
-import types from './types';
-
-const capitalize = (s) => {
-  if (typeof s !== 'string') return '';
-  return s.charAt(0).toUpperCase() + s.slice(1);
-};
+import types from '../types/commandTypes';
+import { buildBetsList } from '../libs/slackMessages';
 
 function usageExample(prefixMessage) {
   const allStatuses = Object.values(types).join('|');
@@ -12,7 +8,6 @@ function usageExample(prefixMessage) {
 }
 
 export default async function (payload) {
-  // /lunchbets status=pending
   const queryMap = payload.text
     .split(' ')
     .filter((part) => part)
@@ -41,36 +36,7 @@ export default async function (payload) {
   };
 
   const result = await dynamodb.query(params);
-  const sections = result.Items.sort((a, b) =>
-    a.createdAt < b.createdAt ? -1 : 1,
-  ).reduce(
-    (acc, bet) => {
-      acc.push({
-        type: 'divider',
-      });
-      acc.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text:
-            `*${capitalize(bet.betStatus)}*:\n` +
-            `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
-            `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
-            `ID - ${bet.betId}`,
-        },
-      });
-      return acc;
-    },
-    [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Lunch bets:*',
-        },
-      },
-    ],
-  );
+  const sections = buildBetsList(result.Items);
   return {
     response_type: 'in_channel',
     blocks: sections,

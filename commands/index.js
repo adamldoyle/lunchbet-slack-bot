@@ -1,4 +1,4 @@
-import types from './types';
+import types from '../types/commandTypes';
 import lunchbetHandler from './lunchbet';
 import lunchbetsHandler from './lunchbets';
 
