@@ -134,7 +134,7 @@ export async function sendBetProposal(bet) {
   });
 
   debug('proposal', JSON.stringify(response));
-  flush(throw new Error('whatever'));
+  flush(new Error('whatever'));
   return response.ts;
 }
 
