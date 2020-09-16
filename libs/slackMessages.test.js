@@ -4,6 +4,7 @@ import status from '../types/commandStatuses';
 import {
   sendBetInitial,
   sendBetProposal,
+  sendBetAccepted,
   buildBetsList,
 } from './slackMessages';
 
@@ -113,6 +114,66 @@ describe('slackMessages', () => {
       );
       expect(payload.attachments[0].actions[0].value).toEqual(status.ACCEPTED);
       expect(payload.attachments[0].actions[1].value).toEqual(status.DECLINED);
+    });
+  });
+
+  describe('sendBetAccepted', () => {
+    it('returns timestamp from slack message', async () => {
+      const bet = {};
+      const response = await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      expect(response).toEqual('testTs');
+    });
+
+    it('sends to user', async () => {
+      const bet = {
+        targetUserId: 'testUserId',
+      };
+      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      const payload = slackClient.chat.postMessage.mock.calls[0][0];
+      expect(payload.channel).toEqual('@userId');
+    });
+
+    it('includes bet details', async () => {
+      const bet = {
+        creatorUserId: 'testCreator',
+        targetUserId: 'testTarget',
+        creatorLunchCount: 1,
+        targetLunchCount: 2,
+        creatorWinCondition: 'creatorCondition',
+        targetWinCondition: 'targetCondition',
+        betId: '123',
+      };
+      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      const payload = slackClient.chat.postMessage.mock.calls[0][0];
+      const blocks = JSON.stringify(payload.blocks);
+      expect(blocks).toContain(
+        `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
+      );
+      expect(blocks).toContain(
+        `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}`,
+      );
+      expect(blocks).toContain(bet.betId);
+    });
+
+    it('includes winner and tie buttons', async () => {
+      const bet = {
+        betId: '123',
+        creatorUserId: 'testCreator',
+        targetUserId: 'testTarget',
+      };
+      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      const payload = slackClient.chat.postMessage.mock.calls[0][0];
+      expect(payload.attachments[0].callback_id).toEqual(
+        `${interactiveTypes.WINNER_RESPONSE}_123`,
+      );
+      expect(payload.attachments[0].actions[0].value).toEqual(
+        bet.creatorUserId,
+      );
+      expect(payload.attachments[0].actions[0].text).toEqual('user1');
+      expect(payload.attachments[0].actions[1].value).toEqual('tie');
+      expect(payload.attachments[0].actions[1].text).toEqual('Tie');
+      expect(payload.attachments[0].actions[2].value).toEqual(bet.targetUserId);
+      expect(payload.attachments[0].actions[2].text).toEqual('user2');
     });
   });
 

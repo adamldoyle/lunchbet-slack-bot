@@ -82,7 +82,7 @@ describe('proposalResponseHandler', () => {
     dynamodb.update.mockResolvedValue({
       Attributes: attributes,
     });
-    const response = await handler(payload);
+    await handler(payload);
     expect(slackClient.chat.update).toBeCalledWith(
       expect.objectContaining({
         channel: payload.channel.id,
@@ -123,5 +123,64 @@ describe('proposalResponseHandler', () => {
     await testSlackUpdateToUser(status.ACCEPTED);
     await testSlackUpdateToUser(status.DECLINED);
     await testSlackUpdateToUser(status.CANCELED);
+  });
+
+  it('new acceptance messages sent on accept and saves timestamps', async () => {
+    const payload = {
+      actions: [{ value: status.ACCEPTED }],
+      callback_id: `${types.PROPOSAL_RESPONSE}_123`,
+      user: { id: 'abc' },
+      channel: { id: '789' },
+    };
+    const attributes = { creatorUserId: 'abc', targetUserId: 'def' };
+    dynamodb.update.mockResolvedValue({
+      Attributes: attributes,
+    });
+    getUserMap.mockResolvedValue({ abc: 'UserABC', def: 'UserDEF' });
+    sendBetAccepted.mockResolvedValueOnce(3).mockResolvedValueOnce(4);
+    await handler(payload);
+    expect(getUserMap).toBeCalled();
+    expect(sendBetAccepted).toBeCalledWith(
+      attributes,
+      'UserABC',
+      'UserDEF',
+      'abc',
+    );
+    expect(sendBetAccepted).toBeCalledWith(
+      attributes,
+      'UserABC',
+      'UserDEF',
+      'def',
+    );
+
+    expect(dynamodb.update).toBeCalledWith(
+      expect.objectContaining({
+        TableName: 'testTableName',
+        Key: {
+          betId: '123',
+        },
+        UpdateExpression:
+          'SET creatorAcceptTs = :creatorAcceptTs, targetAcceptTs = :targetAcceptTs',
+        ExpressionAttributeValues: {
+          ':creatorAcceptTs': 3,
+          ':targetAcceptTs': 4,
+        },
+      }),
+    );
+  });
+
+  it('does not send acceptance message for non-accept', async () => {
+    const payload = {
+      actions: [{ value: status.DECLINED }],
+      callback_id: `${types.PROPOSAL_RESPONSE}_123`,
+      user: { id: 'abc' },
+      channel: { id: '789' },
+    };
+    const attributes = { creatorUserId: 'abc', targetUserId: 'def' };
+    dynamodb.update.mockResolvedValue({
+      Attributes: attributes,
+    });
+    await handler(payload);
+    expect(sendBetAccepted).not.toBeCalled();
   });
 });
