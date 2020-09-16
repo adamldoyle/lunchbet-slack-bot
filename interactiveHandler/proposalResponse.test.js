@@ -71,7 +71,7 @@ describe('proposalResponseHandler', () => {
     }
   });
 
-  async function testSlackUpdateToOther(newStatus, expectedFieldName) {
+  async function testSlackUpdateToOther(newStatus, expectedUserFieldName, expectedFieldName) {
     const payload = {
       actions: [{ value: newStatus }],
       callback_id: `${types.PROPOSAL_RESPONSE}_123`,
@@ -85,7 +85,7 @@ describe('proposalResponseHandler', () => {
     await handler(payload);
     expect(slackClient.chat.update).toBeCalledWith(
       expect.objectContaining({
-        channel: payload.channel.id,
+        channel: `@${attributes[expectedUserFieldName]}`,
         ts: attributes[expectedFieldName],
       }),
     );
@@ -97,11 +97,11 @@ describe('proposalResponseHandler', () => {
 
   it('sends slack message to update other user', async () => {
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.ACCEPTED, 'initialTs');
+    await testSlackUpdateToOther(status.ACCEPTED, 'targetUserId', 'initialTs');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.DECLINED, 'initialTs');
+    await testSlackUpdateToOther(status.DECLINED, 'targetUserId', 'initialTs');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.CANCELED, 'proposalTs');
+    await testSlackUpdateToOther(status.CANCELED, 'creatorUserId', 'proposalTs');
   });
 
   async function testSlackUpdateToUser(newStatus) {
