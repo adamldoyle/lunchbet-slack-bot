@@ -3,13 +3,16 @@
   "version": "1.0.0",
   "description": "Slackbot for handling lunch bets",
   "scripts": {
-    "test": "serverless-bundle test",
-    "test:coverage": "serverless-bundle test --coverage",
+    "test": "serverless-bundle test --runInBand",
+    "test:watch": "serverless-bundle test --watch --runInBand",
+    "test:coverage": "serverless-bundle test --coverage --runInBand",
+    "package": "serverless package",
     "prettier": "prettier .",
     "prettify": "prettier --write ."
   },
   "pre-commit": [
-    "test"
+    "test",
+    "package"
   ],
   "author": "Adam Doyle <adamldoyle@gmail.com>",
   "license": "MIT",
@@ -17,11 +20,13 @@
     "aws-sdk": "^2.747.0",
     "pre-commit": "^1.2.2",
     "prettier": "^2.1.1",
+    "serverless": "^2.0.0",
     "serverless-bundle": "^3.0.0",
     "serverless-dotenv-plugin": "^3.0.0"
   },
   "dependencies": {
     "@slack/events-api": "^2.3.4",
-    "@slack/web-api": "^5.11.0"
+    "@slack/web-api": "^5.11.0",
+    "uuid": "^8.3.0"
   }
 }

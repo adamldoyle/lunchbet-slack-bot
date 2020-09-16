@@ -1,4 +1,4 @@
-import types from './types';
+import types from '../types/eventTypes';
 import SlackClient from '../libs/slack';
 
 export async function handleSource(payload) {

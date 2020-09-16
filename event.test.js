@@ -1,11 +1,11 @@
 import { verifyRequest } from './libs/slack';
 import eventHandler from './events';
-import { main } from './message';
+import { main } from './event';
 
 jest.mock('./libs/slack');
 jest.mock('./events');
 
-describe('message handler', () => {
+describe('event handler', () => {
   it('verifies requests', async () => {
     const event = { body: null };
     const context = { context: true };

@@ -1,4 +1,4 @@
-import types from './types';
+import types from './eventTypes';
 
 describe('types', () => {
   it('contains help', () => {

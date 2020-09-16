@@ -9,6 +9,7 @@ plugins:
 
 custom:
   stage: ${opt:stage, self:provider.stage}
+  tableName: ${self:custom.stage}-bets
 
 lambdaPolicyXRay:
   Effect: Allow
@@ -26,13 +27,51 @@ provider:
     apiGateway: true
     lambda: true
 
+  environment:
+    tableName: ${self:custom.tableName}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - 'Fn::GetAtt': [BetsTable, Arn]
+        - {
+            'Fn::Join':
+              [
+                '/',
+                [{ 'Fn::GetAtt': [BetsTable, Arn] }, 'index', 'BetStatusIndex'],
+              ],
+          }
+
 resources:
   - ${file(resources/api-gateway-errors.yml)}
+  - ${file(resources/dynamodb-tables.yml)}
 
 functions:
-  message:
-    handler: message.main
+  event:
+    handler: event.main
     events:
       - http:
-          path: messages
+          path: events
+          method: post
+
+  command:
+    handler: command.main
+    events:
+      - http:
+          path: commands
+          method: post
+
+  interactive:
+    handler: interactive.main
+    events:
+      - http:
+          path: interactive
           method: post
