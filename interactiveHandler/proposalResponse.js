@@ -56,7 +56,7 @@ export default async function (payload) {
 
   debug('payload channel id', payload.channel.id);
   debug('other user channel', `@${updatedItem.Attributes[otherUserField]}`);
-  
+
   await slackClient.chat.update({
     channel: `@${updatedItem.Attributes[otherUserField]}`,
     ts: updatedItem.Attributes[otherTsField],
