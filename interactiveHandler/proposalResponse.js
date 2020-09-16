@@ -35,66 +35,69 @@ export default async function (payload) {
   };
   const updatedItem = await dynamodb.update(params);
 
-  const attachments = [
-    {
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `Bet *${response}*`,
-          },
-        },
-      ],
-    },
-  ];
-
+  let attachments;
   if (response === status.ACCEPTED) {
-    attachments.push({
-      text: 'Choose a winner',
-      fallback: 'You are unable to make a choice',
-      callback_id: `${types.WINNER_RESPONSE}_${updatedItem.betId}`,
-      color: '#3AA3E3',
-      attachment_type: 'default',
-      actions: [
-        {
-          name: types.WINNER_RESPONSE,
-          text: `<@${updatedItem.creatorUserId}>`,
-          type: 'button',
-          value: updatedItem.creatorUserId,
-          confirm: {
-            title: 'Are you sure?',
-            text: "You won't be able to change this decision.",
-            ok_text: 'Yes',
-            dismiss_text: 'No',
+    attachments = [
+      {
+        text: 'Bet *accepted*! Choose a winner:',
+        fallback: 'You are unable to make a choice',
+        callback_id: `${types.WINNER_RESPONSE}_${updatedItem.betId}`,
+        color: '#3AA3E3',
+        attachment_type: 'default',
+        actions: [
+          {
+            name: types.WINNER_RESPONSE,
+            text: `<@${updatedItem.creatorUserId}>`,
+            type: 'button',
+            value: updatedItem.creatorUserId,
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
           },
-        },
-        {
-          name: types.WINNER_RESPONSE,
-          text: `Tie`,
-          type: 'button',
-          value: 'tie',
-          confirm: {
-            title: 'Are you sure?',
-            text: "You won't be able to change this decision.",
-            ok_text: 'Yes',
-            dismiss_text: 'No',
+          {
+            name: types.WINNER_RESPONSE,
+            text: `Tie`,
+            type: 'button',
+            value: 'tie',
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
           },
-        },
-        {
-          name: types.WINNER_RESPONSE,
-          text: `<@${updatedItem.targetUserId}>`,
-          type: 'button',
-          value: updatedItem.targetUserId,
-          confirm: {
-            title: 'Are you sure?',
-            text: "You won't be able to change this decision.",
-            ok_text: 'Yes',
-            dismiss_text: 'No',
+          {
+            name: types.WINNER_RESPONSE,
+            text: `<@${updatedItem.targetUserId}>`,
+            type: 'button',
+            value: updatedItem.targetUserId,
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
           },
-        },
-      ],
-    });
+        ],
+      },
+    ];
+  } else {
+    attachments = [
+      {
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Bet *${response}*`,
+            },
+          },
+        ],
+      },
+    ];
   }
 
   await slackClient.chat.update({
