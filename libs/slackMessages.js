@@ -135,7 +135,12 @@ export async function sendBetProposal(bet) {
   return response.ts;
 }
 
-export async function sendBetAccepted(bet, userId) {
+export async function sendBetAccepted(
+  bet,
+  creatorUserName,
+  targetUserName,
+  userId,
+) {
   const response = await slackClient.chat.postMessage({
     channel: `@${userId}`,
     blocks: [
@@ -170,7 +175,7 @@ export async function sendBetAccepted(bet, userId) {
         actions: [
           {
             name: interactiveTypes.WINNER_RESPONSE,
-            text: `<@${bet.creatorUserId}>`,
+            text: creatorUserName,
             type: 'button',
             value: bet.creatorUserId,
             confirm: {
@@ -194,7 +199,7 @@ export async function sendBetAccepted(bet, userId) {
           },
           {
             name: interactiveTypes.WINNER_RESPONSE,
-            text: `<@${bet.targetUserId}>`,
+            text: targetUserName,
             type: 'button',
             value: bet.targetUserId,
             confirm: {

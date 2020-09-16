@@ -1,7 +1,7 @@
 import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
-import slackClient from '../libs/slack';
+import slackClient, { getUserMap } from '../libs/slack';
 import { sendBetAccepted } from '../libs/slackMessages';
 
 export default async function (payload) {
@@ -56,15 +56,23 @@ export default async function (payload) {
     attachments: updatedAttachments,
   });
 
-  // TODO: Need to save these ids
-  await sendBetAccepted(
-    updatedItem.Attributes,
-    updatedItem.Attributes.creatorUserId,
-  );
-  await sendBetAccepted(
-    updatedItem.Attributes,
-    updatedItem.Attributes.targetUserId,
-  );
+  if (response === status.ACCEPTED) {
+    const userMap = await getUserMap();
+
+    // TODO: Need to save these ids
+    await sendBetAccepted(
+      updatedItem.Attributes,
+      userMap[updatedItem.Attributes.creatorUserId],
+      userMap[updatedItem.Attributes.targetUserId],
+      updatedItem.Attributes.creatorUserId,
+    );
+    await sendBetAccepted(
+      updatedItem.Attributes,
+      userMap[updatedItem.Attributes.creatorUserId],
+      userMap[updatedItem.Attributes.targetUserId],
+      updatedItem.Attributes.targetUserId,
+    );
+  }
 
   return {
     ...payload.original_message,

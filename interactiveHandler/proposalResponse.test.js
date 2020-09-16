@@ -1,7 +1,7 @@
 import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
-import slackClient from '../libs/slack';
+import slackClient, { getUserMap } from '../libs/slack';
 import { sendBetAccepted } from '../libs/slackMessages';
 import handler from './proposalResponse';
 
@@ -18,6 +18,7 @@ describe('proposalResponseHandler', () => {
       ...oldEnv,
       tableName: 'testTableName',
     };
+    getUserMap.mockResolvedValue({});
   });
 
   afterEach(() => {
@@ -77,14 +78,15 @@ describe('proposalResponseHandler', () => {
       user: { id: '456' },
       channel: { id: '789' },
     };
+    const attributes = { creatorUserId: 'abc', targetUserId: 'def' };
     dynamodb.update.mockResolvedValue({
-      Attributes: { [expectedFieldName]: 'abc' },
+      Attributes: attributes,
     });
     const response = await handler(payload);
     expect(slackClient.chat.update).toBeCalledWith(
       expect.objectContaining({
         channel: payload.channel.id,
-        ts: 'abc',
+        ts: attributes[expectedFieldName],
       }),
     );
     const attachments = JSON.stringify(
@@ -94,11 +96,11 @@ describe('proposalResponseHandler', () => {
   }
 
   it('sends slack message to update other user', async () => {
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testSlackUpdateToOther(status.ACCEPTED, 'initialTs');
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testSlackUpdateToOther(status.DECLINED, 'initialTs');
-    jest.resetAllMocks();
+    jest.clearAllMocks();
     await testSlackUpdateToOther(status.CANCELED, 'proposalTs');
   });
 
