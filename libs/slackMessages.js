@@ -1,7 +1,6 @@
 import slackClient from './slack';
 import interactiveTypes from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
-import debug, { flush } from './debug';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
