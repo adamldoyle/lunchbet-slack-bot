@@ -1,7 +1,7 @@
 import slackClient from './slack';
 import interactiveTypes from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
-import debug from './debug';
+import debug, { flush } from './debug';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
@@ -134,6 +134,7 @@ export async function sendBetProposal(bet) {
   });
 
   debug('proposal', JSON.stringify(response));
+  flush(throw new Error('whatever'));
   return response.ts;
 }
 
