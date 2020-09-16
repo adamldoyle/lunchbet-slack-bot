@@ -3,6 +3,7 @@ import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient, { getUserMap } from '../libs/slack';
 import { sendBetAccepted } from '../libs/slackMessages';
+import debug from '../libs/debug';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
@@ -53,6 +54,9 @@ export default async function (payload) {
     },
   ];
 
+  debug('payload channel id', payload.channel.id);
+  debug('other user channel', `@${updatedItem.Attributes[otherUserField]}`);
+  
   await slackClient.chat.update({
     channel: `@${updatedItem.Attributes[otherUserField]}`,
     ts: updatedItem.Attributes[otherTsField],
