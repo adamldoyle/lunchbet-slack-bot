@@ -97,11 +97,11 @@ describe('proposalResponseHandler', () => {
 
   it('sends slack message to update other user', async () => {
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.ACCEPTED, 'targetUserId', 'initialTs');
+    await testSlackUpdateToOther(status.ACCEPTED, 'creatorUserId', 'initialTs');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.DECLINED, 'targetUserId', 'initialTs');
+    await testSlackUpdateToOther(status.DECLINED, 'creatorUserId', 'initialTs');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.CANCELED, 'creatorUserId', 'proposalTs');
+    await testSlackUpdateToOther(status.CANCELED, 'targetUserId', 'proposalTs');
   });
 
   async function testSlackUpdateToUser(newStatus) {
