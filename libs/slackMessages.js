@@ -7,6 +7,14 @@ const capitalize = (s) => {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
+function betDetails(bet) {
+  return (
+    `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
+    `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
+    `ID - ${bet.betId}`
+  );
+}
+
 export async function sendBetInitial(bet) {
   const response = await slackClient.chat.postMessage({
     channel: `@${bet.creatorUserId}`,
@@ -25,10 +33,7 @@ export async function sendBetInitial(bet) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text:
-            `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
-            `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
-            `ID - ${bet.betId}`,
+          text: betDetails(bet),
         },
       },
       {
@@ -82,10 +87,7 @@ export async function sendBetProposal(bet) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text:
-            `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
-            `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
-            `ID - ${bet.betId}`,
+          text: betDetails(bet),
         },
       },
       {
@@ -133,6 +135,83 @@ export async function sendBetProposal(bet) {
   return response.ts;
 }
 
+export async function sendBetAccepted(bet, userId) {
+  const response = await slackClient.chat.postMessage({
+    channel: `@${userId}`,
+    blocks: [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `The lunch bet is on!`,
+        },
+      },
+      {
+        type: 'divider',
+      },
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: betDetails(bet),
+        },
+      },
+      {
+        type: 'divider',
+      },
+    ],
+    attachments: [
+      {
+        text: 'Choose a winner:',
+        fallback: 'You are unable to make a choice',
+        callback_id: `${interactiveTypes.WINNER_RESPONSE}_${bet.betId}`,
+        color: '#3AA3E3',
+        attachment_type: 'default',
+        actions: [
+          {
+            name: interactiveTypes.WINNER_RESPONSE,
+            text: `<@${bet.creatorUserId}>`,
+            type: 'button',
+            value: bet.creatorUserId,
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
+          },
+          {
+            name: interactiveTypes.WINNER_RESPONSE,
+            text: `Tie`,
+            type: 'button',
+            value: 'tie',
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
+          },
+          {
+            name: interactiveTypes.WINNER_RESPONSE,
+            text: `<@${bet.targetUserId}>`,
+            type: 'button',
+            value: bet.targetUserId,
+            confirm: {
+              title: 'Are you sure?',
+              text: "You won't be able to change this decision.",
+              ok_text: 'Yes',
+              dismiss_text: 'No',
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  return response.ts;
+}
+
 export function buildBetsList(bets) {
   return bets
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
@@ -145,11 +224,7 @@ export function buildBetsList(bets) {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text:
-              `*${capitalize(bet.betStatus)}*:\n` +
-              `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}\n` +
-              `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}\n` +
-              `ID - ${bet.betId}`,
+            text: `*${capitalize(bet.betStatus)}*:\n` + betDetails(bet),
           },
         });
         return acc;

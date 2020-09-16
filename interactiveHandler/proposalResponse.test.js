@@ -2,10 +2,12 @@ import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient from '../libs/slack';
+import { sendBetAccepted } from '../libs/slackMessages';
 import handler from './proposalResponse';
 
 jest.mock('../libs/dynamodb');
 jest.mock('../libs/slack');
+jest.mock('../libs/slackMessages');
 
 describe('proposalResponseHandler', () => {
   let oldEnv;
