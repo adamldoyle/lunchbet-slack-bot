@@ -60,18 +60,32 @@ export default async function (payload) {
     const userMap = await getUserMap();
 
     // TODO: Need to save these ids
-    await sendBetAccepted(
+    const creatorAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.creatorUserId,
     );
-    await sendBetAccepted(
+    const targetAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.targetUserId,
     );
+
+    const updateParams = {
+      TableName: process.env.tableName,
+      Key: {
+        betId,
+      },
+      UpdateExpression:
+        'SET creatorAcceptTs = :creatorAcceptTs, targetAcceptTs = :targetAcceptTs',
+      ExpressionAttributeValues: {
+        ':creatorAcceptTs': creatorAcceptTs,
+        ':targetAcceptTs': targetAcceptTs,
+      },
+    };
+    await dynamodb.update(updateParams);
   }
 
   return {
