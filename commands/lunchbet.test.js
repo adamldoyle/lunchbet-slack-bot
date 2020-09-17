@@ -9,6 +9,8 @@ jest.mock('../libs/slackMessages');
 describe('lunchbetHandler', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    sendBetInitial.mockResolvedValue({ ts: 13, channel: 'channel13' });
+    sendBetProposal.mockResolvedValue({ ts: 14, channel: 'channel14' });
   });
 
   it('parses and inserts bet into db', async () => {
@@ -44,8 +46,6 @@ describe('lunchbetHandler', () => {
       targetWinCondition: 'their win condition',
       betStatus: status.PROPOSED,
     });
-    sendBetInitial.mockResolvedValue(13);
-    sendBetProposal.mockResolvedValue(14);
     await handler({
       user_id: 'myUserId',
       text:
@@ -59,8 +59,10 @@ describe('lunchbetHandler', () => {
           betId: dynamodb.put.mock.calls[0][0].Item.betId,
         },
         ExpressionAttributeValues: {
-          ':initialTs': 13,
-          ':proposalTs': 14,
+          ':creatorInitialTs': 13,
+          ':targetInitialTs': 14,
+          ':creatorChannel': 'channel13',
+          ':targetChannel': 'channel14',
         },
       }),
     );

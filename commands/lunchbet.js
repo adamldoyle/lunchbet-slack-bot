@@ -43,18 +43,26 @@ export default async function (payload) {
   };
   await dynamodb.put(params);
 
-  const initialTs = await sendBetInitial(params.Item);
-  const proposalTs = await sendBetProposal(params.Item);
+  const {
+    ts: creatorInitialTs,
+    channel: creatorChannel,
+  } = await sendBetInitial(params.Item);
+  const { ts: targetInitialTs, channel: targetChannel } = await sendBetProposal(
+    params.Item,
+  );
 
   const updateParams = {
     TableName: process.env.tableName,
     Key: {
       betId: params.Item.betId,
     },
-    UpdateExpression: 'SET initialTs = :initialTs, proposalTs = :proposalTs',
+    UpdateExpression:
+      'SET creatorInitialTs = :creatorInitialTs, targetInitialTs = :targetInitialTs, creatorChannel = :creatorChannel, targetChannel = :targetChannel',
     ExpressionAttributeValues: {
-      ':initialTs': initialTs,
-      ':proposalTs': proposalTs,
+      ':creatorInitialTs': creatorInitialTs,
+      ':targetInitialTs': targetInitialTs,
+      ':creatorChannel': creatorChannel,
+      ':targetChannel': targetChannel,
     },
   };
   await dynamodb.update(updateParams);

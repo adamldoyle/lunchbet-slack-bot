@@ -66,7 +66,7 @@ export async function sendBetInitial(bet) {
     ],
   });
 
-  return response.ts;
+  return { ts: response.ts, channel: response.channel };
 }
 
 export async function sendBetProposal(bet) {
@@ -132,17 +132,17 @@ export async function sendBetProposal(bet) {
     ],
   });
 
-  return response.ts;
+  return { ts: response.ts, channel: response.channel };
 }
 
 export async function sendBetAccepted(
   bet,
   creatorUserName,
   targetUserName,
-  userId,
+  channel,
 ) {
   const response = await slackClient.chat.postMessage({
-    channel: `@${userId}`,
+    channel,
     blocks: [
       {
         type: 'section',

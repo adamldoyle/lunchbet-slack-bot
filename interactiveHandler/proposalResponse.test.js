@@ -71,22 +71,29 @@ describe('proposalResponseHandler', () => {
     }
   });
 
-  async function testSlackUpdateToOther(newStatus, expectedFieldName) {
+  async function testSlackUpdateToOther(newStatus, expectedPrefix) {
     const payload = {
       actions: [{ value: newStatus }],
       callback_id: `${types.PROPOSAL_RESPONSE}_123`,
       user: { id: '456' },
       channel: { id: '789' },
     };
-    const attributes = { creatorUserId: 'abc', targetUserId: 'def' };
+    const attributes = {
+      creatorUserId: 'abc',
+      targetUserId: 'def',
+      creatorChannel: 'channelAbc',
+      targetChannel: 'channelDef',
+      creatorInitialTs: 'tsAbc',
+      targetInitialTs: 'tsDef',
+    };
     dynamodb.update.mockResolvedValue({
       Attributes: attributes,
     });
     await handler(payload);
     expect(slackClient.chat.update).toBeCalledWith(
       expect.objectContaining({
-        channel: payload.channel.id,
-        ts: attributes[expectedFieldName],
+        channel: attributes[expectedPrefix + 'Channel'],
+        ts: attributes[expectedPrefix + 'InitialTs'],
       }),
     );
     const attachments = JSON.stringify(
@@ -97,11 +104,11 @@ describe('proposalResponseHandler', () => {
 
   it('sends slack message to update other user', async () => {
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.ACCEPTED, 'initialTs');
+    await testSlackUpdateToOther(status.ACCEPTED, 'creator');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.DECLINED, 'initialTs');
+    await testSlackUpdateToOther(status.DECLINED, 'creator');
     jest.clearAllMocks();
-    await testSlackUpdateToOther(status.CANCELED, 'proposalTs');
+    await testSlackUpdateToOther(status.CANCELED, 'target');
   });
 
   async function testSlackUpdateToUser(newStatus) {
@@ -132,7 +139,12 @@ describe('proposalResponseHandler', () => {
       user: { id: 'abc' },
       channel: { id: '789' },
     };
-    const attributes = { creatorUserId: 'abc', targetUserId: 'def' };
+    const attributes = {
+      creatorUserId: 'abc',
+      targetUserId: 'def',
+      creatorChannel: 'channelAbc',
+      targetChannel: 'channelDef',
+    };
     dynamodb.update.mockResolvedValue({
       Attributes: attributes,
     });
@@ -144,13 +156,13 @@ describe('proposalResponseHandler', () => {
       attributes,
       'UserABC',
       'UserDEF',
-      'abc',
+      'channelAbc',
     );
     expect(sendBetAccepted).toBeCalledWith(
       attributes,
       'UserABC',
       'UserDEF',
-      'def',
+      'channelDef',
     );
 
     expect(dynamodb.update).toBeCalledWith(
