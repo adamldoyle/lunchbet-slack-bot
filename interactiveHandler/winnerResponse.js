@@ -1,7 +1,7 @@
 import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
-import slackClient from '../libs/slack';
+import slackClient, { getUserMap } from '../libs/slack';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
@@ -27,13 +27,21 @@ export default async function (payload) {
   const updatedItem = await dynamodb.update(params);
 
   let userPrefix;
-  // let otherPrefix;
+  let otherPrefix;
   if (payload.user.id === updatedItem.Attributes.targetUserId) {
     userPrefix = 'target';
-    // otherPrefix = 'creator';
+    otherPrefix = 'creator';
   } else {
     userPrefix = 'creator';
-    // otherPrefix = 'target';
+    otherPrefix = 'target';
+  }
+
+  let betConclusion;
+  if (response === 'tie') {
+    betConclusion = 'tie';
+  } else {
+    const userMap = await getUserMap();
+    betConclusion = `${userMap[response]} won`;
   }
 
   const updatedUserAttachments = [
@@ -43,7 +51,7 @@ export default async function (payload) {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `Bet conclusion: *${response}*`,
+            text: `Bet conclusion: *${betConclusion}*`,
           },
         },
       ],
@@ -55,5 +63,9 @@ export default async function (payload) {
     attachments: updatedUserAttachments,
   });
 
-
+  await slackClient.chat.update({
+    channel: updatedItem.Attributes[otherPrefix + 'Channel'],
+    ts: updatedItem.Attributes[otherPrefix + 'AcceptTs'],
+    attachments: updatedUserAttachments,
+  });
 }

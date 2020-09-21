@@ -39,26 +39,39 @@ export async function sendBetInitial(bet) {
       {
         type: 'divider',
       },
-    ],
-    attachments: [
       {
-        text: 'Choose an action',
-        fallback: 'You are unable to make a choice',
-        callback_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
-        color: '#3AA3E3',
-        attachment_type: 'default',
-        actions: [
+        type: 'section',
+        block_id: 'actionDescription',
+        text: {
+          type: 'mrkdwn',
+          text: 'Choose an action:',
+        },
+      },
+      {
+        type: 'actions',
+        block_id: 'actionButtons',
+        elements: [
           {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Cancel',
-            style: 'danger',
             type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Cancel',
+            },
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
             value: status.CANCELED,
+            style: 'danger',
             confirm: {
               title: 'Are you sure?',
               text: "You won't be able to undo the cancellation.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
+              style: 'danger',
+              confirm: {
+                type: 'plain_text',
+                text: 'Yes',
+              },
+              deny: {
+                type: 'plain_text',
+                text: 'No',
+              },
             },
           },
         ],

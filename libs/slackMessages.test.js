@@ -61,10 +61,12 @@ describe('slackMessages', () => {
       const bet = { betId: '123' };
       await sendBetInitial(bet);
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(payload.attachments[0].callback_id).toEqual(
-        `${interactiveTypes.PROPOSAL_RESPONSE}_123`,
-      );
-      expect(payload.attachments[0].actions[0].value).toEqual(status.CANCELED);
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[0].action_id,
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[0].value,
+      ).toEqual(status.CANCELED);
     });
   });
 
