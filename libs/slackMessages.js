@@ -26,26 +26,16 @@ export async function sendBetInitial(bet) {
           text: `You have proposed a lunch bet to <@${bet.targetUserId}>!`,
         },
       },
-      {
-        type: 'divider',
-      },
+      { type: 'divider' },
       {
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: betDetails(bet),
-        },
+        text: { type: 'mrkdwn', text: betDetails(bet) },
       },
-      {
-        type: 'divider',
-      },
+      { type: 'divider' },
       {
         type: 'section',
         block_id: 'actionDescription',
-        text: {
-          type: 'mrkdwn',
-          text: 'Choose an action:',
-        },
+        text: { type: 'mrkdwn', text: 'Choose an action:' },
       },
       {
         type: 'actions',
@@ -53,84 +43,25 @@ export async function sendBetInitial(bet) {
         elements: [
           {
             type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Cancel',
-            },
+            text: { type: 'plain_text', text: 'Cancel' },
             action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
             value: status.CANCELED,
             style: 'danger',
             confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to undo the cancellation.",
+              title: { type: 'plain_text', text: 'Are you sure?' },
+              text: {
+                type: 'mrkdwn',
+                text: "You won't be able to undo the cancellation.",
+              },
               style: 'danger',
-              confirm: {
-                type: 'plain_text',
-                text: 'Yes',
-              },
-              deny: {
-                type: 'plain_text',
-                text: 'No',
-              },
+              confirm: { type: 'plain_text', text: 'Yes' },
+              deny: { type: 'plain_text', text: 'No' },
             },
           },
         ],
       },
     ],
   });
-
-  console.log(
-    JSON.stringify(
-      {
-        channel: `@${bet.creatorUserId}`,
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `You have proposed a lunch bet to <@${bet.targetUserId}>!`,
-            },
-          },
-          { type: 'divider' },
-          {
-            type: 'section',
-            text: { type: 'mrkdwn', text: betDetails(bet) },
-          },
-          { type: 'divider' },
-          {
-            type: 'section',
-            block_id: 'actionDescription',
-            text: { type: 'mrkdwn', text: 'Choose an action:' },
-          },
-          {
-            type: 'actions',
-            block_id: 'actionButtons',
-            elements: [
-              {
-                type: 'button',
-                text: { type: 'plain_text', text: 'Cancel' },
-                action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
-                value: status.CANCELED,
-                style: 'danger',
-                confirm: {
-                  title: { type: 'plain_text', text: 'Are you sure?' },
-                  text: {
-                    type: 'mrkdwn',
-                    text: "You won't be able to undo the cancellation.",
-                  },
-                  style: 'danger',
-                  confirm: { type: 'plain_text', text: 'Yes' },
-                  deny: { type: 'plain_text', text: 'No' },
-                },
-              },
-            ],
-          },
-        ],
-      },
-      null,
-      4,
-    ),
-  );
 
   return { ts: response.ts, channel: response.channel };
 }
