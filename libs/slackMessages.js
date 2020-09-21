@@ -79,6 +79,59 @@ export async function sendBetInitial(bet) {
     ],
   });
 
+  console.log(
+    JSON.stringify(
+      {
+        channel: `@${bet.creatorUserId}`,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `You have proposed a lunch bet to <@${bet.targetUserId}>!`,
+            },
+          },
+          { type: 'divider' },
+          {
+            type: 'section',
+            text: { type: 'mrkdwn', text: betDetails(bet) },
+          },
+          { type: 'divider' },
+          {
+            type: 'section',
+            block_id: 'actionDescription',
+            text: { type: 'mrkdwn', text: 'Choose an action:' },
+          },
+          {
+            type: 'actions',
+            block_id: 'actionButtons',
+            elements: [
+              {
+                type: 'button',
+                text: { type: 'plain_text', text: 'Cancel' },
+                action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
+                value: status.CANCELED,
+                style: 'danger',
+                confirm: {
+                  title: { type: 'plain_text', text: 'Are you sure?' },
+                  text: {
+                    type: 'mrkdwn',
+                    text: "You won't be able to undo the cancellation.",
+                  },
+                  style: 'danger',
+                  confirm: { type: 'plain_text', text: 'Yes' },
+                  deny: { type: 'plain_text', text: 'No' },
+                },
+              },
+            ],
+          },
+        ],
+      },
+      null,
+      4,
+    ),
+  );
+
   return { ts: response.ts, channel: response.channel };
 }
 
