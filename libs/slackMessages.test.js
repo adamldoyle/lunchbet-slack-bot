@@ -111,12 +111,22 @@ describe('slackMessages', () => {
     it('includes accept and decline buttons', async () => {
       const bet = { betId: '123' };
       await sendBetProposal(bet);
+
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(payload.attachments[0].callback_id).toEqual(
-        `${interactiveTypes.PROPOSAL_RESPONSE}_123`,
-      );
-      expect(payload.attachments[0].actions[0].value).toEqual(status.ACCEPTED);
-      expect(payload.attachments[0].actions[1].value).toEqual(status.DECLINED);
+
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[0].action_id,
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[0].value,
+      ).toEqual(status.ACCEPTED);
+
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[1].action_id,
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      expect(
+        payload.blocks[payload.blocks.length - 1].elements[1].value,
+      ).toEqual(status.DECLINED);
     });
   });
 
