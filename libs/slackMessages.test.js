@@ -63,7 +63,7 @@ describe('slackMessages', () => {
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       expect(
         payload.blocks[payload.blocks.length - 1].elements[0].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.CANCELED}`);
       expect(
         payload.blocks[payload.blocks.length - 1].elements[0].value,
       ).toEqual(status.CANCELED);
@@ -116,14 +116,14 @@ describe('slackMessages', () => {
 
       expect(
         payload.blocks[payload.blocks.length - 1].elements[0].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.ACCEPTED}`);
       expect(
         payload.blocks[payload.blocks.length - 1].elements[0].value,
       ).toEqual(status.ACCEPTED);
 
       expect(
         payload.blocks[payload.blocks.length - 1].elements[1].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123`);
+      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.DECLINED}`);
       expect(
         payload.blocks[payload.blocks.length - 1].elements[1].value,
       ).toEqual(status.DECLINED);

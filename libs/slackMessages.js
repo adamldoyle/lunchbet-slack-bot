@@ -44,7 +44,7 @@ export async function sendBetInitial(bet) {
           {
             type: 'button',
             text: { type: 'plain_text', text: 'Cancel' },
-            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.CANCELED}`,
             value: status.CANCELED,
             style: 'danger',
             confirm: {
@@ -95,7 +95,7 @@ export async function sendBetProposal(bet) {
           {
             type: 'button',
             text: { type: 'plain_text', text: 'Accept' },
-            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.ACCEPTED}`,
             value: status.ACCEPTED,
             confirm: {
               title: { type: 'plain_text', text: 'Are you sure?' },
@@ -111,7 +111,7 @@ export async function sendBetProposal(bet) {
           {
             type: 'button',
             text: { type: 'plain_text', text: 'Decline' },
-            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.DECLINED}`,
             value: status.DECLINED,
             style: 'danger',
             confirm: {
