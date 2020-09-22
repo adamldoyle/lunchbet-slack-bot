@@ -26,39 +26,36 @@ export async function sendBetInitial(bet) {
           text: `You have proposed a lunch bet to <@${bet.targetUserId}>!`,
         },
       },
-      {
-        type: 'divider',
-      },
+      { type: 'divider' },
       {
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: betDetails(bet),
-        },
+        text: { type: 'mrkdwn', text: betDetails(bet) },
+      },
+      { type: 'divider' },
+      {
+        type: 'section',
+        block_id: 'actionDescription',
+        text: { type: 'mrkdwn', text: 'Choose an action:' },
       },
       {
-        type: 'divider',
-      },
-    ],
-    attachments: [
-      {
-        text: 'Choose an action',
-        fallback: 'You are unable to make a choice',
-        callback_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
-        color: '#3AA3E3',
-        attachment_type: 'default',
-        actions: [
+        type: 'actions',
+        block_id: 'actionButtons',
+        elements: [
           {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Cancel',
-            style: 'danger',
             type: 'button',
+            text: { type: 'plain_text', text: 'Cancel' },
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.CANCELED}`,
             value: status.CANCELED,
+            style: 'danger',
             confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to undo the cancellation.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
+              title: { type: 'plain_text', text: 'Are you sure?' },
+              text: {
+                type: 'mrkdwn',
+                text: "You won't be able to undo the cancellation.",
+              },
+              style: 'danger',
+              confirm: { type: 'plain_text', text: 'Yes' },
+              deny: { type: 'plain_text', text: 'No' },
             },
           },
         ],
@@ -80,51 +77,52 @@ export async function sendBetProposal(bet) {
           text: `<@${bet.creatorUserId}> has proposed a lunch bet to you!`,
         },
       },
-      {
-        type: 'divider',
-      },
+      { type: 'divider' },
       {
         type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: betDetails(bet),
-        },
+        text: { type: 'mrkdwn', text: betDetails(bet) },
+      },
+      { type: 'divider' },
+      {
+        type: 'section',
+        block_id: 'actionDescription',
+        text: { type: 'mrkdwn', text: 'Choose an action:' },
       },
       {
-        type: 'divider',
-      },
-    ],
-    attachments: [
-      {
-        text: 'Choose an action',
-        fallback: 'You are unable to make a choice',
-        callback_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}`,
-        color: '#3AA3E3',
-        attachment_type: 'default',
-        actions: [
+        type: 'actions',
+        block_id: 'actionButtons',
+        elements: [
           {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Accept',
             type: 'button',
+            text: { type: 'plain_text', text: 'Accept' },
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.ACCEPTED}`,
             value: status.ACCEPTED,
             confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to change this decision.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
+              title: { type: 'plain_text', text: 'Are you sure?' },
+              text: {
+                type: 'mrkdwn',
+                text: "You won't be able to undo this action.",
+              },
+              style: 'primary',
+              confirm: { type: 'plain_text', text: 'Yes' },
+              deny: { type: 'plain_text', text: 'No' },
             },
           },
           {
-            name: interactiveTypes.PROPOSAL_RESPONSE,
-            text: 'Decline',
-            style: 'danger',
             type: 'button',
+            text: { type: 'plain_text', text: 'Decline' },
+            action_id: `${interactiveTypes.PROPOSAL_RESPONSE}_${bet.betId}_${status.DECLINED}`,
             value: status.DECLINED,
+            style: 'danger',
             confirm: {
-              title: 'Are you sure?',
-              text: "You won't be able to change this decision.",
-              ok_text: 'Yes',
-              dismiss_text: 'No',
+              title: { type: 'plain_text', text: 'Are you sure?' },
+              text: {
+                type: 'mrkdwn',
+                text: "You won't be able to undo this action.",
+              },
+              style: 'primary',
+              confirm: { type: 'plain_text', text: 'Yes' },
+              deny: { type: 'plain_text', text: 'No' },
             },
           },
         ],
