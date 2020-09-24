@@ -184,7 +184,6 @@ export async function sendBetAccepted(
           text: { type: 'plain_text', text: targetUserName },
           action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.targetUserId}:${index}`,
           value: bet.targetUserId,
-          style: 'danger',
           confirm: actionConfirm,
         },
       ],

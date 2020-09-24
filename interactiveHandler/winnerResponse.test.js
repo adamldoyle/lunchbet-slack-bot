@@ -40,7 +40,7 @@ describe('winnerResponseHandler', () => {
         TableName: 'testTableName',
         Key: { betId: '123' },
         ConditionExpression:
-          'betStatus = :requiredStatus AND (targetUserId = :userId OR creatorUserId = :userId) AND (targetUserId = :winner OR creatorUserId = :winner OR "tie" = :winner)',
+          'betStatus = :requiredStatus AND (targetUserId = :userId OR creatorUserId = :userId) AND (targetUserId = :winner OR creatorUserId = :winner OR :tie = :winner)',
         UpdateExpression:
           'SET betStatus = :betStatus, winner = :winner, winProposer = :userId',
         ExpressionAttributeValues: {
@@ -48,6 +48,7 @@ describe('winnerResponseHandler', () => {
           ':userId': '456',
           ':betStatus': status.CONCLUSION_PROPOSED,
           ':winner': 'abc',
+          ':tie': 'tie',
         },
         ReturnValues: 'ALL_NEW',
       }),

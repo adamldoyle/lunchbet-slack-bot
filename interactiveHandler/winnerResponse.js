@@ -13,7 +13,7 @@ export default async function (payload) {
       betId,
     },
     ConditionExpression:
-      'betStatus = :requiredStatus AND (targetUserId = :userId OR creatorUserId = :userId) AND (targetUserId = :winner OR creatorUserId = :winner OR "tie" = :winner)',
+      'betStatus = :requiredStatus AND (targetUserId = :userId OR creatorUserId = :userId) AND (targetUserId = :winner OR creatorUserId = :winner OR :tie = :winner)',
     UpdateExpression:
       'SET betStatus = :betStatus, winner = :winner, winProposer = :userId',
     ExpressionAttributeValues: {
@@ -21,6 +21,7 @@ export default async function (payload) {
       ':userId': payload.user.id,
       ':betStatus': status.CONCLUSION_PROPOSED,
       ':winner': response,
+      ':tie': 'tie',
     },
     ReturnValues: 'ALL_NEW',
   };
