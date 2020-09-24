@@ -206,7 +206,8 @@ describe('slackMessages', () => {
         bet,
         'user1',
         'user2',
-        'userId',
+        'testChannel',
+        'testUserId',
       );
       expect(response).toEqual('testTs');
     });
@@ -215,7 +216,13 @@ describe('slackMessages', () => {
       const bet = {
         targetUserId: 'testUserId',
       };
-      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'testChannel');
+      await slackMessages.sendBetAccepted(
+        bet,
+        'user1',
+        'user2',
+        'testChannel',
+        'testUserId',
+      );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       expect(payload.channel).toEqual('testChannel');
     });
@@ -230,7 +237,13 @@ describe('slackMessages', () => {
         targetWinCondition: 'targetCondition',
         betId: '123',
       };
-      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      await slackMessages.sendBetAccepted(
+        bet,
+        'user1',
+        'user2',
+        'testChannel',
+        'testUserId',
+      );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       const blocks = JSON.stringify(payload.blocks);
       expect(blocks).toContain(
@@ -248,25 +261,31 @@ describe('slackMessages', () => {
         creatorUserId: 'testCreator',
         targetUserId: 'testTarget',
       };
-      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      await slackMessages.sendBetAccepted(
+        bet,
+        'user1',
+        'user2',
+        'testChannel',
+        'testUserId',
+      );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
 
       const blocks = payload.blocks;
       const block = blocks[blocks.length - 1];
       expect(block.elements[0].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}:testUserId`,
       );
       expect(block.elements[0].value).toEqual(bet.creatorUserId);
       expect(block.elements[0].text.text).toEqual('user1');
 
       expect(block.elements[1].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:tie`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:tie:testUserId`,
       );
       expect(block.elements[1].value).toEqual('tie');
       expect(block.elements[1].text.text).toEqual('Tie');
 
       expect(block.elements[2].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.targetUserId}`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.targetUserId}:testUserId`,
       );
       expect(block.elements[2].value).toEqual(bet.targetUserId);
       expect(block.elements[2].text.text).toEqual('user2');

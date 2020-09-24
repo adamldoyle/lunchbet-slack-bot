@@ -194,12 +194,14 @@ describe('proposalResponseHandler', () => {
       'UserABC',
       'UserDEF',
       'channelAbc',
+      'abc',
     );
     expect(sendBetAccepted).toBeCalledWith(
       attributes,
       'UserABC',
       'UserDEF',
       'channelDef',
+      'def',
     );
 
     expect(dynamodb.update).toBeCalledWith(

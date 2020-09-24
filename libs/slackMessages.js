@@ -153,6 +153,7 @@ export async function sendBetAccepted(
   creatorUserName,
   targetUserName,
   channel,
+  userId,
 ) {
   const actions = [
     {
@@ -167,21 +168,21 @@ export async function sendBetAccepted(
         {
           type: 'button',
           text: { type: 'plain_text', text: creatorUserName },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.creatorUserId}`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.creatorUserId}:${userId}`,
           value: bet.creatorUserId,
           confirm: actionConfirm,
         },
         {
           type: 'button',
           text: { type: 'plain_text', text: 'Tie' },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:tie`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:tie:${userId}`,
           value: 'tie',
           confirm: actionConfirm,
         },
         {
           type: 'button',
           text: { type: 'plain_text', text: targetUserName },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.targetUserId}`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.targetUserId}:${userId}`,
           value: bet.targetUserId,
           style: 'danger',
           confirm: actionConfirm,
@@ -191,7 +192,7 @@ export async function sendBetAccepted(
   ];
 
   const blocks = buildBetBlocks('The lunch bet is on!', bet, actions);
-  debug('Message blocks', blocks);
+  debug('Message blocks', JSON.stringify(blocks));
   const response = await slackClient.chat.postMessage({
     channel,
     blocks,

@@ -60,12 +60,14 @@ export default async function (payload) {
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.creatorChannel,
+      updatedItem.Attributes.creatorUserId,
     );
     const targetAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.targetChannel,
+      updatedItem.Attributes.targetUserId,
     );
 
     const updateParams = {
