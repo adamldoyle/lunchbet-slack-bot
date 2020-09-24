@@ -4,6 +4,7 @@ import status from '../types/commandStatuses';
 import * as slackMessages from './slackMessages';
 
 jest.mock('./slack');
+jest.mock('./debug');
 
 describe('slackMessages', () => {
   beforeEach(() => {
