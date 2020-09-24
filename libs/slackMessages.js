@@ -1,6 +1,7 @@
 import slackClient from './slack';
 import interactiveTypes from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
+import debug from './debug';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
@@ -189,9 +190,11 @@ export async function sendBetAccepted(
     },
   ];
 
+  const blocks = buildBetBlocks('The lunch bet is on!', bet, actions);
+  debug('Message blocks', blocks);
   const response = await slackClient.chat.postMessage({
     channel,
-    blocks: buildBetBlocks('The lunch bet is on!', bet, actions),
+    blocks,
   });
 
   return response.ts;
