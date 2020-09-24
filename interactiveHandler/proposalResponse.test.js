@@ -105,16 +105,28 @@ describe('proposalResponseHandler', () => {
     dynamodb.update.mockResolvedValue({
       Attributes: attributes,
     });
-    builder.mockReturnValue([{ whatever: true }]);
+    buildBetInitialBlocks.mockReturnValue([{ whatever: true }]);
+    buildBetProposalBlocks.mockReturnValue([{ whatever: true }]);
+
     await handler(payload);
+
     expect(slackClient.chat.update).toBeCalledWith(
       expect.objectContaining({
-        channel: attributes[expectedPrefix + 'Channel'],
-        ts: attributes[expectedPrefix + 'InitialTs'],
+        channel: attributes['creatorChannel'],
+        ts: attributes['creatorInitialTs'],
         blocks: [{ whatever: true }],
       }),
     );
-    expect(builder).toBeCalledWith(attributes);
+    expect(buildBetInitialBlocks).toBeCalledWith(attributes);
+
+    expect(slackClient.chat.update).toBeCalledWith(
+      expect.objectContaining({
+        channel: attributes['targetChannel'],
+        ts: attributes['targetInitialTs'],
+        blocks: [{ whatever: true }],
+      }),
+    );
+    expect(buildBetProposalBlocks).toBeCalledWith(attributes);
   }
 
   it('sends slack message to update other user', async () => {
@@ -136,33 +148,6 @@ describe('proposalResponseHandler', () => {
       'target',
       buildBetProposalBlocks,
     );
-  });
-
-  async function testSlackUpdateToUser(newStatus, builder) {
-    const payload = {
-      actions: [
-        {
-          value: newStatus,
-          action_id: `${types.PROPOSAL_RESPONSE}:123:${newStatus}`,
-        },
-      ],
-      user: { id: '456' },
-      channel: { id: '789' },
-    };
-    const attributes = { initialTs: 'abc' };
-    dynamodb.update.mockResolvedValue({
-      Attributes: attributes,
-    });
-    builder.mockReturnValue([{ whatever: true }]);
-    const response = await handler(payload);
-    expect(builder).toBeCalledWith(attributes);
-    expect(response.blocks).toEqual([{ whatever: true }]);
-  }
-
-  it('returns slack update to user', async () => {
-    await testSlackUpdateToUser(status.ACCEPTED, buildBetProposalBlocks);
-    await testSlackUpdateToUser(status.DECLINED, buildBetProposalBlocks);
-    await testSlackUpdateToUser(status.CANCELED, buildBetInitialBlocks);
   });
 
   it('new acceptance messages sent on accept and saves timestamps', async () => {
@@ -194,14 +179,14 @@ describe('proposalResponseHandler', () => {
       'UserABC',
       'UserDEF',
       'channelAbc',
-      'abc',
+      '0',
     );
     expect(sendBetAccepted).toBeCalledWith(
       attributes,
       'UserABC',
       'UserDEF',
       'channelDef',
-      'def',
+      '1',
     );
 
     expect(dynamodb.update).toBeCalledWith(

@@ -54,7 +54,12 @@ describe('winnerResponseHandler', () => {
     );
   });
 
-  async function testSlackUpdateToOther(conclusion, userId, expectedPrefix) {
+  async function testSlackUpdateToOther(
+    conclusion,
+    userId,
+    expectedPrefix,
+    expectedOtherPrefix,
+  ) {
     const payload = {
       actions: [
         {
@@ -83,6 +88,13 @@ describe('winnerResponseHandler', () => {
         blocks: [{ whatever: true }],
       }),
     );
+    expect(slackClient.chat.update).toBeCalledWith(
+      expect.objectContaining({
+        channel: attributes[expectedOtherPrefix + 'Channel'],
+        ts: attributes[expectedOtherPrefix + 'AcceptTs'],
+        blocks: [{ whatever: true }],
+      }),
+    );
     return attributes;
   }
 
@@ -90,7 +102,7 @@ describe('winnerResponseHandler', () => {
     let bet;
 
     jest.resetAllMocks();
-    bet = await testSlackUpdateToOther('abc', '123', 'target');
+    bet = await testSlackUpdateToOther('abc', '123', 'target', 'creator');
     expect(buildBetConclusionProposalBlocks).toBeCalledWith(
       bet,
       'UserABC won',
@@ -99,7 +111,7 @@ describe('winnerResponseHandler', () => {
     expect(getUserMap).toBeCalled();
 
     jest.resetAllMocks();
-    bet = await testSlackUpdateToOther('abc', 'other', 'creator');
+    bet = await testSlackUpdateToOther('abc', 'other', 'creator', 'target');
     expect(buildBetConclusionProposalBlocks).toBeCalledWith(
       bet,
       'UserABC won',
@@ -108,71 +120,13 @@ describe('winnerResponseHandler', () => {
     expect(getUserMap).toBeCalled();
 
     jest.resetAllMocks();
-    bet = await testSlackUpdateToOther('tie', '123', 'target');
+    bet = await testSlackUpdateToOther('tie', '123', 'target', 'creator');
     expect(buildBetConclusionProposalBlocks).toBeCalledWith(bet, 'Tie', true);
     expect(getUserMap).not.toBeCalled();
 
     jest.resetAllMocks();
-    bet = await testSlackUpdateToOther('tie', 'other', 'creator');
+    bet = await testSlackUpdateToOther('tie', 'other', 'creator', 'target');
     expect(buildBetConclusionProposalBlocks).toBeCalledWith(bet, 'Tie', true);
-    expect(getUserMap).not.toBeCalled();
-  });
-
-  async function testSlackUpdateToUser(conclusion, userId) {
-    const payload = {
-      actions: [
-        {
-          value: conclusion,
-          action_id: `${types.WINNER_RESPONSE}:123:${conclusion}`,
-        },
-      ],
-      user: { id: userId },
-    };
-    const attributes = {
-      targetUserId: '123',
-      creatorChannel: '456',
-      creatorAcceptTs: '789',
-      targetChannel: 'uvw',
-      targetAcceptTs: 'xyz',
-    };
-    dynamodb.update.mockResolvedValue({ Attributes: attributes });
-    buildBetConclusionProposalBlocks.mockReturnValue([{ whatever: true }]);
-    const userMap = { abc: 'UserABC', def: 'UserDEF' };
-    getUserMap.mockResolvedValue(userMap);
-    const response = await handler(payload);
-    expect(response.blocks).toEqual([{ whatever: true }]);
-    return attributes;
-  }
-
-  it('returns slack update to user', async () => {
-    let bet;
-
-    jest.resetAllMocks();
-    bet = await testSlackUpdateToUser('abc', '123');
-    expect(buildBetConclusionProposalBlocks).toBeCalledWith(
-      bet,
-      'UserABC won',
-      false,
-    );
-    expect(getUserMap).toBeCalled();
-
-    jest.resetAllMocks();
-    bet = await testSlackUpdateToUser('abc', 'other');
-    expect(buildBetConclusionProposalBlocks).toBeCalledWith(
-      bet,
-      'UserABC won',
-      false,
-    );
-    expect(getUserMap).toBeCalled();
-
-    jest.resetAllMocks();
-    bet = await testSlackUpdateToUser('tie', '123');
-    expect(buildBetConclusionProposalBlocks).toBeCalledWith(bet, 'Tie', false);
-    expect(getUserMap).not.toBeCalled();
-
-    jest.resetAllMocks();
-    bet = await testSlackUpdateToUser('tie', 'other');
-    expect(buildBetConclusionProposalBlocks).toBeCalledWith(bet, 'Tie', false);
     expect(getUserMap).not.toBeCalled();
   });
 });

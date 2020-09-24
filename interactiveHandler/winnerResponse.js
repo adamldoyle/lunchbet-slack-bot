@@ -27,10 +27,13 @@ export default async function (payload) {
   const updatedItem = await dynamodb.update(params);
 
   let userPrefix;
+  let otherPrefix;
   if (payload.user.id === updatedItem.Attributes.targetUserId) {
     userPrefix = 'target';
+    otherPrefix = 'creator';
   } else {
     userPrefix = 'creator';
+    otherPrefix = 'target';
   }
 
   let betConclusion;
@@ -47,16 +50,17 @@ export default async function (payload) {
     blocks: buildBetConclusionProposalBlocks(
       updatedItem.Attributes,
       betConclusion,
-      true,
+      false,
     ),
   });
 
-  return {
-    ...payload.original_message,
+  await slackClient.chat.update({
+    channel: updatedItem.Attributes[otherPrefix + 'Channel'],
+    ts: updatedItem.Attributes[otherPrefix + 'AcceptTs'],
     blocks: buildBetConclusionProposalBlocks(
       updatedItem.Attributes,
       betConclusion,
-      false,
+      true,
     ),
-  };
+  });
 }

@@ -207,7 +207,7 @@ describe('slackMessages', () => {
         'user1',
         'user2',
         'testChannel',
-        'testUserId',
+        '1',
       );
       expect(response).toEqual('testTs');
     });
@@ -221,7 +221,7 @@ describe('slackMessages', () => {
         'user1',
         'user2',
         'testChannel',
-        'testUserId',
+        '1',
       );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       expect(payload.channel).toEqual('testChannel');
@@ -242,7 +242,7 @@ describe('slackMessages', () => {
         'user1',
         'user2',
         'testChannel',
-        'testUserId',
+        '1',
       );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       const blocks = JSON.stringify(payload.blocks);
@@ -266,26 +266,26 @@ describe('slackMessages', () => {
         'user1',
         'user2',
         'testChannel',
-        'testUserId',
+        '1',
       );
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
 
       const blocks = payload.blocks;
       const block = blocks[blocks.length - 1];
       expect(block.elements[0].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}:testUserId`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}:1`,
       );
       expect(block.elements[0].value).toEqual(bet.creatorUserId);
       expect(block.elements[0].text.text).toEqual('user1');
 
       expect(block.elements[1].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:tie:testUserId`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:tie:1`,
       );
       expect(block.elements[1].value).toEqual('tie');
       expect(block.elements[1].text.text).toEqual('Tie');
 
       expect(block.elements[2].action_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.targetUserId}:testUserId`,
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.targetUserId}:1`,
       );
       expect(block.elements[2].value).toEqual(bet.targetUserId);
       expect(block.elements[2].text.text).toEqual('user2');

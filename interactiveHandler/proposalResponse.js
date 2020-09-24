@@ -46,6 +46,12 @@ export default async function (payload) {
   const updatedItem = await dynamodb.update(params);
 
   await slackClient.chat.update({
+    channel: updatedItem.Attributes[userPrefix + 'Channel'],
+    ts: updatedItem.Attributes[userPrefix + 'InitialTs'],
+    blocks: userBuilder(updatedItem.Attributes),
+  });
+
+  await slackClient.chat.update({
     channel: updatedItem.Attributes[otherPrefix + 'Channel'],
     ts: updatedItem.Attributes[otherPrefix + 'InitialTs'],
     blocks: otherBuilder(updatedItem.Attributes),
@@ -60,14 +66,14 @@ export default async function (payload) {
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.creatorChannel,
-      updatedItem.Attributes.creatorUserId,
+      '0',
     );
     const targetAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],
       userMap[updatedItem.Attributes.targetUserId],
       updatedItem.Attributes.targetChannel,
-      updatedItem.Attributes.targetUserId,
+      '1',
     );
 
     const updateParams = {
@@ -84,9 +90,4 @@ export default async function (payload) {
     };
     await dynamodb.update(updateParams);
   }
-
-  return {
-    ...payload.original_message,
-    blocks: userBuilder(updatedItem.Attributes),
-  };
 }

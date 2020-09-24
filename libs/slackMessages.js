@@ -153,7 +153,7 @@ export async function sendBetAccepted(
   creatorUserName,
   targetUserName,
   channel,
-  userId,
+  index,
 ) {
   const actions = [
     {
@@ -168,21 +168,21 @@ export async function sendBetAccepted(
         {
           type: 'button',
           text: { type: 'plain_text', text: creatorUserName },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.creatorUserId}:${userId}`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.creatorUserId}:${index}`,
           value: bet.creatorUserId,
           confirm: actionConfirm,
         },
         {
           type: 'button',
           text: { type: 'plain_text', text: 'Tie' },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:tie:${userId}`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:tie:${index}`,
           value: 'tie',
           confirm: actionConfirm,
         },
         {
           type: 'button',
           text: { type: 'plain_text', text: targetUserName },
-          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.targetUserId}:${userId}`,
+          action_id: `${interactiveTypes.WINNER_RESPONSE}:${bet.betId}:${bet.targetUserId}:${index}`,
           value: bet.targetUserId,
           style: 'danger',
           confirm: actionConfirm,
