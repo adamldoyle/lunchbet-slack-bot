@@ -32,5 +32,6 @@ describe('interactive handler', () => {
     verifyRequest.mockReturnValue(true);
     await main(event, context);
     expect(interactiveHandler).toBeCalledWith(payload);
+    console.log(interactiveHandler.mock.calls[0]);
   });
 });

@@ -3,11 +3,11 @@ import proposalResponseHandler from './proposalResponse';
 import winnerResponseHandler from './winnerResponse';
 
 export default async function (payload) {
-  if (payload.callback_id.startsWith(types.PROPOSAL_RESPONSE)) {
+  if (payload?.actions?.[0]?.action_id?.startsWith(types.PROPOSAL_RESPONSE)) {
     return proposalResponseHandler(payload);
   }
 
-  if (payload.callback_id.startsWith(types.WINNER_RESPONSE)) {
+  if (payload?.actions?.[0]?.action_id?.startsWith(types.WINNER_RESPONSE)) {
     return winnerResponseHandler(payload);
   }
 

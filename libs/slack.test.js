@@ -18,7 +18,7 @@ describe('slack', () => {
   });
 
   describe('verifyRequest', () => {
-    it('passes along values from headers', () => {
+    it('vr passes along values from headers', () => {
       process.env.SLACK_SIGNING_SECRET = 'testSecret';
       const event = {
         headers: {
@@ -40,7 +40,7 @@ describe('slack', () => {
   });
 
   describe('getChannelMap', () => {
-    it('converts to map', async () => {
+    it('gcm converts to map', async () => {
       const mockConversations = jest.fn().mockResolvedValue({
         channels: [
           { id: 'chan1', name: 'Channel1' },
@@ -60,7 +60,7 @@ describe('slack', () => {
   });
 
   describe('getUserMap', () => {
-    it('converts to map', async () => {
+    it('gum converts to map', async () => {
       const mockUsers = jest.fn().mockResolvedValue({
         members: [
           { id: 'user1', name: 'User1' },

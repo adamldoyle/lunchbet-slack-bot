@@ -1,12 +1,7 @@
 import slackClient from './slack';
 import interactiveTypes from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
-import {
-  sendBetInitial,
-  sendBetProposal,
-  sendBetAccepted,
-  buildBetsList,
-} from './slackMessages';
+import * as slackMessages from './slackMessages';
 
 jest.mock('./slack');
 
@@ -19,23 +14,8 @@ describe('slackMessages', () => {
     });
   });
 
-  describe('sendBetInitial', () => {
-    it('returns timestamp from slack message', async () => {
-      const bet = {};
-      const response = await sendBetInitial(bet);
-      expect(response).toEqual({ ts: 'testTs', channel: 'testChannel' });
-    });
-
-    it('sends to creator', async () => {
-      const bet = {
-        creatorUserId: 'testUserId',
-      };
-      await sendBetInitial(bet);
-      const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(payload.channel).toEqual('@testUserId');
-    });
-
-    it('includes bet details', async () => {
+  describe('buildBetInitialBlocks', () => {
+    it('bbib includes bet details', () => {
       const bet = {
         creatorUserId: 'testCreator',
         targetUserId: 'testTarget',
@@ -44,10 +24,9 @@ describe('slackMessages', () => {
         creatorWinCondition: 'creatorCondition',
         targetWinCondition: 'targetCondition',
         betId: '123',
+        betStatus: status.PROPOSED,
       };
-      await sendBetInitial(bet);
-      const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      const blocks = JSON.stringify(payload.blocks);
+      const blocks = JSON.stringify(slackMessages.buildBetInitialBlocks(bet));
       expect(blocks).toContain(
         `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
       );
@@ -57,36 +36,144 @@ describe('slackMessages', () => {
       expect(blocks).toContain(bet.betId);
     });
 
-    it('includes cancel button', async () => {
-      const bet = { betId: '123' };
-      await sendBetInitial(bet);
+    it('bbib includes cancel button', () => {
+      const bet = { betId: '123', betStatus: status.PROPOSED };
+      const blocks = slackMessages.buildBetInitialBlocks(bet);
+      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+        `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.CANCELED}`,
+      );
+      expect(blocks[blocks.length - 1].elements[0].value).toEqual(
+        status.CANCELED,
+      );
+    });
+
+    function validateNonProposed(betStatus) {
+      const bet = { betId: '123', betStatus };
+      const blocks = slackMessages.buildBetInitialBlocks(bet);
+      expect(blocks[blocks.length - 1].elements).toBeUndefined();
+      expect(JSON.stringify(blocks)).toContain(`Bet *${bet.betStatus}*`);
+    }
+
+    it('bbib excludes buttons when not PROPOSED and shows status', () => {
+      validateNonProposed(status.ACCEPTED);
+      validateNonProposed(status.DECLINED);
+      validateNonProposed(status.CANCELED);
+    });
+  });
+
+  describe('sendBetInitial', () => {
+    it('sbi returns timestamp from slack message', async () => {
+      const bet = {};
+      const response = await slackMessages.sendBetInitial(bet);
+      expect(response).toEqual({ ts: 'testTs', channel: 'testChannel' });
+    });
+
+    it('sbi sends to creator', async () => {
+      const bet = {
+        creatorUserId: 'testUserId',
+      };
+      await slackMessages.sendBetInitial(bet);
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[0].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.CANCELED}`);
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[0].value,
-      ).toEqual(status.CANCELED);
+      expect(payload.channel).toEqual('@testUserId');
+    });
+
+    it('sbi includes blocks', async () => {
+      const bet = {
+        creatorUserId: 'testCreator',
+        targetUserId: 'testTarget',
+        creatorLunchCount: 1,
+        targetLunchCount: 2,
+        creatorWinCondition: 'creatorCondition',
+        targetWinCondition: 'targetCondition',
+        betId: '123',
+        betStatus: status.PROPOSED,
+      };
+      await slackMessages.sendBetInitial(bet);
+      const blocks = JSON.stringify(
+        slackClient.chat.postMessage.mock.calls[0][0].blocks,
+      );
+      expect(blocks).toContain(
+        `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
+      );
+      expect(blocks).toContain(
+        `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}`,
+      );
+      expect(blocks).toContain(bet.betId);
+    });
+  });
+
+  describe('buildBetProposalBlocks', () => {
+    it('bbpb includes bet details', () => {
+      const bet = {
+        creatorUserId: 'testCreator',
+        targetUserId: 'testTarget',
+        creatorLunchCount: 1,
+        targetLunchCount: 2,
+        creatorWinCondition: 'creatorCondition',
+        targetWinCondition: 'targetCondition',
+        betId: '123',
+        betStatus: status.PROPOSED,
+      };
+      const blocks = JSON.stringify(slackMessages.buildBetProposalBlocks(bet));
+      expect(blocks).toContain(
+        `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
+      );
+      expect(blocks).toContain(
+        `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}`,
+      );
+      expect(blocks).toContain(bet.betId);
+    });
+
+    it('bbpb includes accept and decline buttons', () => {
+      const bet = { betId: '123', betStatus: status.PROPOSED };
+      const blocks = slackMessages.buildBetProposalBlocks(bet);
+
+      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+        `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.ACCEPTED}`,
+      );
+      expect(blocks[blocks.length - 1].elements[0].value).toEqual(
+        status.ACCEPTED,
+      );
+
+      expect(blocks[blocks.length - 1].elements[1].action_id).toEqual(
+        `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.DECLINED}`,
+      );
+      expect(blocks[blocks.length - 1].elements[1].value).toEqual(
+        status.DECLINED,
+      );
+    });
+
+    function validateNonProposed(betStatus) {
+      const bet = { betId: '123', betStatus };
+      const blocks = slackMessages.buildBetProposalBlocks(bet);
+      expect(blocks[blocks.length - 1].elements).toBeUndefined();
+      expect(JSON.stringify(blocks)).toContain(`Bet *${bet.betStatus}*`);
+    }
+
+    it('bbpb excludes buttons when not PROPOSED and shows status', () => {
+      validateNonProposed(status.ACCEPTED);
+      validateNonProposed(status.DECLINED);
+      validateNonProposed(status.CANCELED);
     });
   });
 
   describe('sendBetProposal', () => {
-    it('returns timestamp from slack message', async () => {
+    it('sbp returns timestamp from slack message', async () => {
       const bet = {};
-      const response = await sendBetProposal(bet);
+      const response = await slackMessages.sendBetProposal(bet);
       expect(response).toEqual({ ts: 'testTs', channel: 'testChannel' });
     });
 
-    it('sends to target', async () => {
+    it('sbp sends to target', async () => {
       const bet = {
         targetUserId: 'testUserId',
       };
-      await sendBetProposal(bet);
+      await slackMessages.sendBetProposal(bet);
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       expect(payload.channel).toEqual('@testUserId');
     });
 
-    it('includes bet details', async () => {
+    it('sbp includes blocks', async () => {
       const bet = {
         creatorUserId: 'testCreator',
         targetUserId: 'testTarget',
@@ -95,10 +182,12 @@ describe('slackMessages', () => {
         creatorWinCondition: 'creatorCondition',
         targetWinCondition: 'targetCondition',
         betId: '123',
+        betStatus: status.PROPOSED,
       };
-      await sendBetProposal(bet);
-      const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      const blocks = JSON.stringify(payload.blocks);
+      await slackMessages.sendBetProposal(bet);
+      const blocks = JSON.stringify(
+        slackClient.chat.postMessage.mock.calls[0][0].blocks,
+      );
       expect(blocks).toContain(
         `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
       );
@@ -106,47 +195,31 @@ describe('slackMessages', () => {
         `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}`,
       );
       expect(blocks).toContain(bet.betId);
-    });
-
-    it('includes accept and decline buttons', async () => {
-      const bet = { betId: '123' };
-      await sendBetProposal(bet);
-
-      const payload = slackClient.chat.postMessage.mock.calls[0][0];
-
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[0].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.ACCEPTED}`);
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[0].value,
-      ).toEqual(status.ACCEPTED);
-
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[1].action_id,
-      ).toEqual(`${interactiveTypes.PROPOSAL_RESPONSE}_123_${status.DECLINED}`);
-      expect(
-        payload.blocks[payload.blocks.length - 1].elements[1].value,
-      ).toEqual(status.DECLINED);
     });
   });
 
   describe('sendBetAccepted', () => {
-    it('returns timestamp from slack message', async () => {
+    it('sba returns timestamp from slack message', async () => {
       const bet = {};
-      const response = await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      const response = await slackMessages.sendBetAccepted(
+        bet,
+        'user1',
+        'user2',
+        'userId',
+      );
       expect(response).toEqual('testTs');
     });
 
-    it('sends to cjamme;', async () => {
+    it('sba sends to creator', async () => {
       const bet = {
         targetUserId: 'testUserId',
       };
-      await sendBetAccepted(bet, 'user1', 'user2', 'testChannel');
+      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'testChannel');
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       expect(payload.channel).toEqual('testChannel');
     });
 
-    it('includes bet details', async () => {
+    it('sba includes bet details', async () => {
       const bet = {
         creatorUserId: 'testCreator',
         targetUserId: 'testTarget',
@@ -156,7 +229,7 @@ describe('slackMessages', () => {
         targetWinCondition: 'targetCondition',
         betId: '123',
       };
-      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'userId');
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
       const blocks = JSON.stringify(payload.blocks);
       expect(blocks).toContain(
@@ -168,36 +241,112 @@ describe('slackMessages', () => {
       expect(blocks).toContain(bet.betId);
     });
 
-    it('includes winner and tie buttons', async () => {
+    it('sba includes winner and tie buttons', async () => {
       const bet = {
         betId: '123',
         creatorUserId: 'testCreator',
         targetUserId: 'testTarget',
       };
-      await sendBetAccepted(bet, 'user1', 'user2', 'userId');
+      await slackMessages.sendBetAccepted(bet, 'user1', 'user2', 'userId');
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
-      expect(payload.attachments[0].callback_id).toEqual(
-        `${interactiveTypes.WINNER_RESPONSE}_123`,
+
+      const blocks = payload.blocks;
+      const block = blocks[blocks.length - 1];
+      expect(block.elements[0].action_id).toEqual(
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}`,
       );
-      expect(payload.attachments[0].actions[0].value).toEqual(
-        bet.creatorUserId,
+      expect(block.elements[0].value).toEqual(bet.creatorUserId);
+      expect(block.elements[0].text.text).toEqual('user1');
+
+      expect(block.elements[1].action_id).toEqual(
+        `${interactiveTypes.WINNER_RESPONSE}:123:tie`,
       );
-      expect(payload.attachments[0].actions[0].text).toEqual('user1');
-      expect(payload.attachments[0].actions[1].value).toEqual('tie');
-      expect(payload.attachments[0].actions[1].text).toEqual('Tie');
-      expect(payload.attachments[0].actions[2].value).toEqual(bet.targetUserId);
-      expect(payload.attachments[0].actions[2].text).toEqual('user2');
+      expect(block.elements[1].value).toEqual('tie');
+      expect(block.elements[1].text.text).toEqual('Tie');
+
+      expect(block.elements[2].action_id).toEqual(
+        `${interactiveTypes.WINNER_RESPONSE}:123:${bet.targetUserId}`,
+      );
+      expect(block.elements[2].value).toEqual(bet.targetUserId);
+      expect(block.elements[2].text.text).toEqual('user2');
+    });
+  });
+
+  describe('buildBetConclusionProposalBlocks', () => {
+    function validateBetDetails(includeActions) {
+      const bet = {
+        creatorUserId: 'testCreator',
+        targetUserId: 'testTarget',
+        creatorLunchCount: 1,
+        targetLunchCount: 2,
+        creatorWinCondition: 'creatorCondition',
+        targetWinCondition: 'targetCondition',
+        betId: '123',
+      };
+      const blocks = JSON.stringify(
+        slackMessages.buildBetConclusionProposalBlocks(
+          bet,
+          'testConclusion',
+          includeActions,
+        ),
+      );
+      expect(blocks).toContain(
+        `<@${bet.creatorUserId}> (*${bet.creatorLunchCount}* lunches) - ${bet.creatorWinCondition}`,
+      );
+      expect(blocks).toContain(
+        `<@${bet.targetUserId}> (*${bet.targetLunchCount}* lunches) - ${bet.targetWinCondition}`,
+      );
+      expect(blocks).toContain(bet.betId);
+      expect(blocks).toContain('Bet conclusion proposed: *testConclusion*');
+    }
+
+    it('bbcpb includes bet details', () => {
+      jest.resetAllMocks();
+      validateBetDetails(true);
+
+      jest.resetAllMocks();
+      validateBetDetails(false);
+    });
+
+    it('bbcpb includes buttons if requested', () => {
+      const bet = { betId: '123' };
+      const blocks = slackMessages.buildBetConclusionProposalBlocks(
+        bet,
+        'testConclusion',
+        true,
+      );
+
+      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+        `${interactiveTypes.CONFIRMATION_RESPONSE}:123:yes`,
+      );
+      expect(blocks[blocks.length - 1].elements[0].value).toEqual('yes');
+
+      expect(blocks[blocks.length - 1].elements[1].action_id).toEqual(
+        `${interactiveTypes.CONFIRMATION_RESPONSE}:123:no`,
+      );
+      expect(blocks[blocks.length - 1].elements[1].value).toEqual('no');
+    });
+
+    it('bbcpb excludes buttons if requested', () => {
+      const bet = { betId: '123' };
+      const blocks = slackMessages.buildBetConclusionProposalBlocks(
+        bet,
+        'testConclusion',
+        false,
+      );
+
+      expect(blocks[blocks.length - 1].elements).toBeUndefined();
     });
   });
 
   describe('buildBetsList', () => {
-    it('sorts by createdAt (newest first)', () => {
+    it('bbl sorts by createdAt (newest first)', () => {
       const bets = [
         { createdAt: 2, betId: 'ID2' },
         { createdAt: 3, betId: 'ID3' },
         { createdAt: 1, betId: 'ID1' },
       ];
-      const response = JSON.stringify(buildBetsList(bets));
+      const response = JSON.stringify(slackMessages.buildBetsList(bets));
       const indexOf1 = response.indexOf('ID1');
       const indexOf2 = response.indexOf('ID2');
       const indexOf3 = response.indexOf('ID3');
@@ -205,7 +354,7 @@ describe('slackMessages', () => {
       expect(indexOf2).toBeGreaterThan(indexOf3);
     });
 
-    it('includes bet details', () => {
+    it('bbl includes bet details', () => {
       const bets = [
         {
           betStatus: status.ACCEPTED,
@@ -230,7 +379,7 @@ describe('slackMessages', () => {
           createdAt: 1,
         },
       ];
-      const blocks = buildBetsList(bets);
+      const blocks = slackMessages.buildBetsList(bets);
       for (let i = 0; i < bets.length; i++) {
         const bet = bets[i];
         const section = blocks[i * 2 + 2].text.text;

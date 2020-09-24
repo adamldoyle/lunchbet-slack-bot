@@ -1,21 +1,30 @@
-import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient, { getUserMap } from '../libs/slack';
-import { sendBetAccepted } from '../libs/slackMessages';
+import {
+  sendBetAccepted,
+  buildBetInitialBlocks,
+  buildBetProposalBlocks,
+} from '../libs/slackMessages';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
-  const betId = payload.callback_id.split(`${types.PROPOSAL_RESPONSE}_`)[1];
+  const betId = payload.actions[0].action_id.split(':')[1];
 
   let userPrefix;
   let otherPrefix;
+  let userBuilder;
+  let otherBuilder;
   if (response === status.ACCEPTED || response === status.DECLINED) {
     userPrefix = 'target';
     otherPrefix = 'creator';
+    userBuilder = buildBetProposalBlocks;
+    otherBuilder = buildBetInitialBlocks;
   } else if (response === status.CANCELED) {
     userPrefix = 'creator';
     otherPrefix = 'target';
+    userBuilder = buildBetInitialBlocks;
+    otherBuilder = buildBetProposalBlocks;
   } else {
     throw new Error('Invalid status');
   }
@@ -36,24 +45,10 @@ export default async function (payload) {
   };
   const updatedItem = await dynamodb.update(params);
 
-  const updatedAttachments = [
-    {
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `Bet *${response}*`,
-          },
-        },
-      ],
-    },
-  ];
-
   await slackClient.chat.update({
     channel: updatedItem.Attributes[otherPrefix + 'Channel'],
     ts: updatedItem.Attributes[otherPrefix + 'InitialTs'],
-    attachments: updatedAttachments,
+    blocks: otherBuilder(updatedItem.Attributes),
   });
 
   if (response === status.ACCEPTED) {
@@ -90,6 +85,6 @@ export default async function (payload) {
 
   return {
     ...payload.original_message,
-    attachments: updatedAttachments,
+    blocks: userBuilder(updatedItem.Attributes),
   };
 }

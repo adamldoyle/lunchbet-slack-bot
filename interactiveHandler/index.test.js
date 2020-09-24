@@ -16,7 +16,7 @@ describe('interactiveHandler', () => {
       jest.resetAllMocks();
       const subHandler = subHandlers[i];
       const payload = {
-        callback_id: `${subHandler.type}_suffix`,
+        actions: [{ action_id: `${subHandler.type}_suffix` }],
       };
       await handler(payload);
       expect(subHandler.handler).toBeCalledWith(payload);
@@ -24,7 +24,18 @@ describe('interactiveHandler', () => {
   });
 
   it('throws error if no match', async () => {
-    const payload = { callback_id: 'gibberish' };
+    const payload = { actions: [{ action_id: 'gibberish' }] };
+    try {
+      await handler(payload);
+      expect(true).toBeFalsy();
+    } catch (err) {
+      expect(err).toBeDefined();
+      expect(proposalResponseHandler).not.toBeCalledWith(payload);
+    }
+  });
+
+  it('throws error if no action', async () => {
+    const payload = {};
     try {
       await handler(payload);
       expect(true).toBeFalsy();
