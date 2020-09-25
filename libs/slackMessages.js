@@ -1,7 +1,6 @@
 import slackClient from './slack';
 import interactiveTypes from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
-import debug from './debug';
 
 const capitalize = (s) => {
   if (typeof s !== 'string') return '';
@@ -191,11 +190,9 @@ export async function sendBetAccepted(
     },
   ];
 
-  const blocks = buildBetBlocks('The lunch bet is on!', bet, actions);
-  debug('Message blocks', JSON.stringify(blocks));
   const response = await slackClient.chat.postMessage({
     channel,
-    blocks,
+    blocks: buildBetBlocks('The lunch bet is on!', bet, actions),
   });
 
   return response.ts;
@@ -208,6 +205,13 @@ export function buildBetConclusionProposalBlocks(
 ) {
   const actions = includeActions
     ? [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Bet conclusion proposed: *${betConclusion}*`,
+          },
+        },
         {
           type: 'section',
           block_id: 'actionDescription',
@@ -234,13 +238,17 @@ export function buildBetConclusionProposalBlocks(
           ],
         },
       ]
-    : [];
+    : [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `Bet conclusion proposed: *${betConclusion}*`,
+          },
+        },
+      ];
 
-  return buildBetBlocks(
-    `Bet conclusion proposed: *${betConclusion}*`,
-    bet,
-    actions,
-  );
+  return buildBetBlocks('The lunch bet is on!', bet, actions);
 }
 
 export function buildBetsList(bets) {
