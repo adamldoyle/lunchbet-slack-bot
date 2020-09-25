@@ -27,7 +27,7 @@ function betDetails(bet) {
 }
 
 function buildBetBlocks(title, bet, actions) {
-  return [
+  const meat = [
     {
       type: 'section',
       text: { type: 'mrkdwn', text: title },
@@ -38,7 +38,8 @@ function buildBetBlocks(title, bet, actions) {
       text: { type: 'mrkdwn', text: betDetails(bet) },
     },
     { type: 'divider' },
-  ].concat(actions);
+  ];
+  return [...meat, ...actions, { type: 'divider' }];
 }
 
 export function buildBetInitialBlocks(bet) {

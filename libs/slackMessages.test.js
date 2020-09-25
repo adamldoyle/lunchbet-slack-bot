@@ -40,10 +40,10 @@ describe('slackMessages', () => {
     it('bbib includes cancel button', () => {
       const bet = { betId: '123', betStatus: status.PROPOSED };
       const blocks = slackMessages.buildBetInitialBlocks(bet);
-      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+      expect(blocks[blocks.length - 2].elements[0].action_id).toEqual(
         `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.CANCELED}`,
       );
-      expect(blocks[blocks.length - 1].elements[0].value).toEqual(
+      expect(blocks[blocks.length - 2].elements[0].value).toEqual(
         status.CANCELED,
       );
     });
@@ -129,17 +129,17 @@ describe('slackMessages', () => {
       const bet = { betId: '123', betStatus: status.PROPOSED };
       const blocks = slackMessages.buildBetProposalBlocks(bet);
 
-      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+      expect(blocks[blocks.length - 2].elements[0].action_id).toEqual(
         `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.ACCEPTED}`,
       );
-      expect(blocks[blocks.length - 1].elements[0].value).toEqual(
+      expect(blocks[blocks.length - 2].elements[0].value).toEqual(
         status.ACCEPTED,
       );
 
-      expect(blocks[blocks.length - 1].elements[1].action_id).toEqual(
+      expect(blocks[blocks.length - 2].elements[1].action_id).toEqual(
         `${interactiveTypes.PROPOSAL_RESPONSE}:123:${status.DECLINED}`,
       );
-      expect(blocks[blocks.length - 1].elements[1].value).toEqual(
+      expect(blocks[blocks.length - 2].elements[1].value).toEqual(
         status.DECLINED,
       );
     });
@@ -271,7 +271,7 @@ describe('slackMessages', () => {
       const payload = slackClient.chat.postMessage.mock.calls[0][0];
 
       const blocks = payload.blocks;
-      const block = blocks[blocks.length - 1];
+      const block = blocks[blocks.length - 2];
       expect(block.elements[0].action_id).toEqual(
         `${interactiveTypes.WINNER_RESPONSE}:123:${bet.creatorUserId}:1`,
       );
@@ -336,15 +336,15 @@ describe('slackMessages', () => {
         true,
       );
 
-      expect(blocks[blocks.length - 1].elements[0].action_id).toEqual(
+      expect(blocks[blocks.length - 2].elements[0].action_id).toEqual(
         `${interactiveTypes.CONFIRMATION_RESPONSE}:123:yes`,
       );
-      expect(blocks[blocks.length - 1].elements[0].value).toEqual('yes');
+      expect(blocks[blocks.length - 2].elements[0].value).toEqual('yes');
 
-      expect(blocks[blocks.length - 1].elements[1].action_id).toEqual(
+      expect(blocks[blocks.length - 2].elements[1].action_id).toEqual(
         `${interactiveTypes.CONFIRMATION_RESPONSE}:123:no`,
       );
-      expect(blocks[blocks.length - 1].elements[1].value).toEqual('no');
+      expect(blocks[blocks.length - 2].elements[1].value).toEqual('no');
     });
 
     it('bbcpb excludes buttons if requested', () => {
