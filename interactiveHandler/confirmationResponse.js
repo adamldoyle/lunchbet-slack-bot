@@ -18,9 +18,7 @@ export default async function handler(payload) {
       'betStatus = :requiredStatus AND (targetUserId = :userId OR creatorUserId = :userId) AND winProposer <> :userId',
     UpdateExpression:
       'SET betStatus = :newStatus' +
-      (newStatus === status.CONCLUDED
-        ? ''
-        : ', winner = NULL, winProposer = NULL'),
+      (newStatus === status.CONCLUDED ? '' : ' REMOVE winner, winProposer'),
     ExpressionAttributeValues: {
       ':requiredStatus': status.CONCLUSION_PROPOSED,
       ':userId': payload.user.id,
