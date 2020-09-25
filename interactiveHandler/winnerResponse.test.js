@@ -55,6 +55,22 @@ describe('winnerResponseHandler', () => {
     );
   });
 
+  it('can pull bet id from callback_id', async () => {
+    const payload = {
+      callback_id: 'winner_response_123',
+      actions: [{ value: 'abc' }],
+      user: { id: '456' },
+      channel: { id: '789' },
+    };
+    dynamodb.update.mockResolvedValue({ Attributes: {} });
+    await handler(payload);
+    expect(dynamodb.update).toBeCalledWith(
+      expect.objectContaining({
+        Key: { betId: '123' },
+      }),
+    );
+  });
+
   async function testSlackUpdateToOther(
     conclusion,
     userId,

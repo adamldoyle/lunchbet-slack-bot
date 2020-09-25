@@ -1,3 +1,4 @@
+import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient, { getUserMap } from '../libs/slack';
@@ -9,7 +10,13 @@ import {
 
 export default async function (payload) {
   const response = payload.actions[0].value;
-  const betId = payload.actions[0].action_id.split(':')[1];
+  let betId;
+  if (payload.callback_id) {
+    // Deprecated structure
+    betId = payload.callback_id.split(`${types.PROPOSAL_RESPONSE}_`)[1];
+  } else {
+    betId = payload.actions[0].action_id.split(':')[1];
+  }
 
   let userPrefix;
   let otherPrefix;
@@ -49,18 +56,19 @@ export default async function (payload) {
     channel: updatedItem.Attributes[userPrefix + 'Channel'],
     ts: updatedItem.Attributes[userPrefix + 'InitialTs'],
     blocks: userBuilder(updatedItem.Attributes),
+    attachments: [],
   });
 
   await slackClient.chat.update({
     channel: updatedItem.Attributes[otherPrefix + 'Channel'],
     ts: updatedItem.Attributes[otherPrefix + 'InitialTs'],
     blocks: otherBuilder(updatedItem.Attributes),
+    attachments: [],
   });
 
   if (response === status.ACCEPTED) {
     const userMap = await getUserMap();
 
-    // TODO: Need to save these ids
     const creatorAcceptTs = await sendBetAccepted(
       updatedItem.Attributes,
       userMap[updatedItem.Attributes.creatorUserId],

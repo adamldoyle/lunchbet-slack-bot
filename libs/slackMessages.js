@@ -148,11 +148,10 @@ export async function sendBetProposal(bet) {
   return { ts: response.ts, channel: response.channel };
 }
 
-export async function sendBetAccepted(
+export function buildBetAcceptedBlocks(
   bet,
   creatorUserName,
   targetUserName,
-  channel,
   index,
 ) {
   const actions = [
@@ -189,10 +188,19 @@ export async function sendBetAccepted(
       ],
     },
   ];
+  return buildBetBlocks('The lunch bet is on!', bet, actions);
+}
 
+export async function sendBetAccepted(
+  bet,
+  creatorUserName,
+  targetUserName,
+  channel,
+  index,
+) {
   const response = await slackClient.chat.postMessage({
     channel,
-    blocks: buildBetBlocks('The lunch bet is on!', bet, actions),
+    blocks: buildBetAcceptedBlocks(bet, creatorUserName, targetUserName, index),
   });
 
   return response.ts;

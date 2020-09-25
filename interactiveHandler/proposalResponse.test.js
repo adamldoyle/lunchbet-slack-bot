@@ -64,6 +64,22 @@ describe('proposalResponseHandler', () => {
     await testDbUpdate(status.CANCELED, 'creatorUserId');
   });
 
+  it('can pull bet id from callback_id', async () => {
+    const payload = {
+      callback_id: 'proposal_response_123',
+      actions: [{ value: status.ACCEPTED }],
+      user: { id: '456' },
+      channel: { id: '789' },
+    };
+    dynamodb.update.mockResolvedValue({ Attributes: {} });
+    await handler(payload);
+    expect(dynamodb.update).toBeCalledWith(
+      expect.objectContaining({
+        Key: { betId: '123' },
+      }),
+    );
+  });
+
   it('invalid status throws error', async () => {
     const payload = {
       actions: [

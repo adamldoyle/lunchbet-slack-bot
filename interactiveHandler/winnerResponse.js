@@ -1,3 +1,4 @@
+import types from '../types/interactiveTypes';
 import status from '../types/commandStatuses';
 import dynamodb from '../libs/dynamodb';
 import slackClient, { getUserMap } from '../libs/slack';
@@ -5,7 +6,13 @@ import { buildBetConclusionProposalBlocks } from '../libs/slackMessages';
 
 export default async function (payload) {
   const response = payload.actions[0].value;
-  const betId = payload.actions[0].action_id.split(':')[1];
+  let betId;
+  if (payload.callback_id) {
+    // Deprecated structure
+    betId = payload.callback_id.split(`${types.WINNER_RESPONSE}_`)[1];
+  } else {
+    betId = payload.actions[0].action_id.split(':')[1];
+  }
 
   const params = {
     TableName: process.env.tableName,
@@ -53,6 +60,7 @@ export default async function (payload) {
       betConclusion,
       false,
     ),
+    attachments: [],
   });
 
   await slackClient.chat.update({
@@ -63,5 +71,6 @@ export default async function (payload) {
       betConclusion,
       true,
     ),
+    attachments: [],
   });
 }
